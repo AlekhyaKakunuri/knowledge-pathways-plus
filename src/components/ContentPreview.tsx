@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Eye, BookOpen, Video, Crown, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ContentPreview = () => {
   const blogPosts = [
@@ -125,8 +126,11 @@ const ContentPreview = () => {
                     variant={post.isPremium ? "premium" : "default"} 
                     className="w-full"
                     size="sm"
+                    asChild
                   >
-                    {post.isPremium ? "Unlock with Premium" : "Read Article"}
+                    <Link to={`/blog/${post.id}`}>
+                      {post.isPremium ? "Unlock with Premium" : "Read Article"}
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
