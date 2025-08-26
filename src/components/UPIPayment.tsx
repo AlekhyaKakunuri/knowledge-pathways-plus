@@ -55,11 +55,19 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
       return;
     }
 
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please sign in to submit payment.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // Submit payment verification request to database
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('payment_verifications')
         .insert({
           user_id: user?.id,

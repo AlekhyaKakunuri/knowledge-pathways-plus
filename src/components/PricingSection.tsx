@@ -1,7 +1,10 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Crown, Zap } from "lucide-react";
+import UPIPayment from "@/components/UPIPayment";
 
 const PricingSection = () => {
   const plans = [
@@ -57,6 +60,18 @@ const PricingSection = () => {
       popular: false
     }
   ];
+
+  const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
+  const [openUPI, setOpenUPI] = useState(false);
+  const navigate = useNavigate();
+  const handleSelectPlan = (plan: any) => {
+    if (plan.name === "Free") {
+      navigate("/blogs");
+      return;
+    }
+    setSelectedPlan(plan);
+    setOpenUPI(true);
+  };
 
   return (
     <section className="py-20 bg-gradient-to-br from-secondary/20 to-accent/5">
@@ -116,6 +131,7 @@ const PricingSection = () => {
                   variant={plan.buttonVariant as any} 
                   className="w-full"
                   size="lg"
+                  onClick={() => handleSelectPlan(plan)}
                 >
                   {plan.name === "Premium" && <Zap className="h-4 w-4 mr-2" />}
                   {plan.buttonText}
@@ -130,6 +146,12 @@ const PricingSection = () => {
             All plans include a 14-day free trial. No credit card required for free tier.
           </p>
         </div>
+
+        <UPIPayment
+          selectedPlan={selectedPlan}
+          isOpen={openUPI}
+          onClose={() => setOpenUPI(false)}
+        />
       </div>
     </section>
   );

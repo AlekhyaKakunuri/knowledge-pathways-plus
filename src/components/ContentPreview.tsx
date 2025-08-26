@@ -84,7 +84,9 @@ const ContentPreview = () => {
               <BookOpen className="h-6 w-6 text-primary" />
               <h3 className="text-2xl font-bold">Latest Blog Posts</h3>
             </div>
-            <Button variant="outline">View All Blogs</Button>
+            <Button variant="outline" asChild>
+              <Link to="/blogs">View All Blogs</Link>
+            </Button>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -145,7 +147,9 @@ const ContentPreview = () => {
               <Video className="h-6 w-6 text-accent" />
               <h3 className="text-2xl font-bold">Featured Video Courses</h3>
             </div>
-            <Button variant="accent">View All Courses</Button>
+            <Button variant="accent" asChild>
+              <Link to="/courses">View All Courses</Link>
+            </Button>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
