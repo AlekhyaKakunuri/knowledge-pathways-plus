@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { BookOpen, Video, User, Menu, LogOut } from "lucide-react";
+import { BookOpen, Video, User, Menu, LogOut, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 
@@ -25,25 +25,31 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-hero">
               <BookOpen className="h-6 w-6 text-white" />
             </div>
             <span className="text-xl font-bold text-primary">EduPlatform</span>
-          </div>
+          </Link>
           
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/blogs" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               <BookOpen className="h-4 w-4" />
               Blogs
-            </a>
-            <a href="#" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            </Link>
+            <Link to="/courses" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               <Video className="h-4 w-4" />
               Videos
-            </a>
-            <a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            </Link>
+            <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Pricing
-            </a>
+            </Link>
+            {user && (
+              <Link to="/admin" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                <Shield className="h-4 w-4" />
+                Admin
+              </Link>
+            )}
           </nav>
         </div>
 

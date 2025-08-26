@@ -1,211 +1,306 @@
-import { useParams, Navigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Eye, Crown, Lock, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Clock, Eye, BookOpen, Crown, Lock, Unlock, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { ContentService, Blog } from "@/services/contentService";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const BlogDetail = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const [blog, setBlog] = useState<Blog | null>(null);
+  const [relatedBlogs, setRelatedBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  // Sample blog data - in a real app, this would come from your database
-  const blogPosts = [
-    {
-      id: 1,
-      title: "Introduction to Modern Web Development",
-      description: "Learn the fundamentals of HTML, CSS, and JavaScript in this comprehensive guide.",
-      content: `
-        <h2>Getting Started with Web Development</h2>
-        <p>Web development has evolved significantly over the years. In this comprehensive guide, we'll explore the fundamental technologies that power the modern web.</p>
-        
-        <h3>HTML: The Foundation</h3>
-        <p>HTML (HyperText Markup Language) is the backbone of any web page. It provides the structure and semantic meaning to your content...</p>
-        
-        <h3>CSS: Styling and Layout</h3>
-        <p>CSS (Cascading Style Sheets) is responsible for the visual presentation of your HTML elements. With modern CSS, you can create stunning layouts and animations...</p>
-        
-        <h3>JavaScript: Adding Interactivity</h3>
-        <p>JavaScript brings your web pages to life by adding interactivity and dynamic behavior. From simple form validation to complex single-page applications...</p>
-        
-        <h3>Modern Development Tools</h3>
-        <p>Today's web development ecosystem includes powerful tools like bundlers, frameworks, and development servers that make building web applications more efficient...</p>
-      `,
-      readTime: "8 min read",
-      views: "2.1k",
-      isPremium: false,
-      category: "Web Development",
-      author: "John Doe",
-      publishedAt: "2024-01-15"
-    },
-    {
-      id: 2,
-      title: "Advanced React Patterns and Best Practices",
-      description: "Deep dive into advanced React concepts including hooks, context, and performance optimization.",
-      content: `
-        <h2>Mastering Advanced React Patterns</h2>
-        <p>React has become one of the most popular frontend frameworks, and mastering its advanced patterns is crucial for building scalable applications.</p>
-        
-        <h3>Custom Hooks</h3>
-        <p>Custom hooks are a powerful way to extract component logic into reusable functions...</p>
-        
-        <h3>Context and State Management</h3>
-        <p>Learn how to effectively manage state across your application using React Context and modern state management patterns...</p>
-        
-        <h3>Performance Optimization</h3>
-        <p>Discover techniques for optimizing React applications, including memoization, lazy loading, and efficient rendering...</p>
-        
-        <h3>Advanced Component Patterns</h3>
-        <p>Explore compound components, render props, and higher-order components to create flexible and reusable UI elements...</p>
-      `,
-      readTime: "12 min read",
-      views: "1.8k",
-      isPremium: true,
-      category: "React",
-      author: "Jane Smith",
-      publishedAt: "2024-01-10"
-    },
-    {
-      id: 3,
-      title: "Building Scalable APIs with Node.js",
-      description: "Learn how to create robust and scalable backend APIs using Node.js and Express.",
-      content: `
-        <h2>Creating Robust Backend APIs</h2>
-        <p>Building scalable APIs is essential for modern web applications. Node.js provides an excellent platform for creating high-performance backend services.</p>
-        
-        <h3>Setting Up Express</h3>
-        <p>Express.js is the most popular Node.js framework for building web applications and APIs...</p>
-        
-        <h3>Database Integration</h3>
-        <p>Learn how to integrate your API with various databases, from SQL to NoSQL solutions...</p>
-        
-        <h3>Authentication and Security</h3>
-        <p>Implement secure authentication mechanisms and protect your API from common vulnerabilities...</p>
-        
-        <h3>Performance and Scaling</h3>
-        <p>Optimize your API for performance and learn strategies for scaling to handle increased load...</p>
-      `,
-      readTime: "15 min read",
-      views: "3.2k",
-      isPremium: false,
-      category: "Backend",
-      author: "Mike Johnson",
-      publishedAt: "2024-01-05"
-    }
-  ];
+  // Get subscription status
+  const { canAccessPremiumContent, loading: subscriptionLoading } = useSubscription();
 
-  const blog = blogPosts.find(post => post.id === parseInt(id || "0"));
-  
-  if (!blog) {
-    return <Navigate to="/404" replace />;
+  useEffect(() => {
+    if (id) {
+      fetchBlog();
+    }
+  }, [id]);
+
+  const fetchBlog = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const blogData = await ContentService.getBlogById(id!);
+      if (!blogData) {
+        setError('Blog not found');
+        return;
+      }
+      
+      setBlog(blogData);
+      
+      // Fetch related blogs
+      const related = await ContentService.getRelatedBlogs(id!, blogData.tags || []);
+      setRelatedBlogs(related);
+    } catch (err) {
+      console.error('Error fetching blog:', err);
+      setError('Failed to load blog');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getReadingTime = (content: string) => {
+    return ContentService.calculateReadingTime(content);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  // Helper function to get premium content display info
+  const getPremiumContentInfo = (isPremium: boolean) => {
+    if (!isPremium) {
+      return {
+        badge: null,
+        buttonText: "Read Article",
+        buttonVariant: "default" as const,
+        linkPath: (id: string) => `/blog/${id}`
+      };
+    }
+
+    if (canAccessPremiumContent) {
+      return {
+        badge: (
+          <Badge className="bg-green-100 text-green-700 border-green-200">
+            <Unlock className="h-3 w-3 mr-1" />
+            Unlocked
+          </Badge>
+        ),
+        buttonText: "Read Full Article",
+        buttonVariant: "default" as const,
+        linkPath: (id: string) => `/blog/${id}` // Premium users can access via regular blog route
+      };
+    }
+
+    return {
+      badge: (
+        <Badge className="bg-gradient-premium text-premium-foreground">
+          <Lock className="h-3 w-3 mr-1" />
+          Premium
+        </Badge>
+      ),
+      buttonText: "Unlock with Premium",
+      buttonVariant: "premium" as const,
+      linkPath: (id: string) => `/premium/blog/${id}`
+    };
+  };
+
+  if (loading || subscriptionLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-20">
+          <div className="container">
+            <div className="text-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading blog...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
-  // Check if user has subscription for premium content
-  const hasSubscription = false; // TODO: Check actual subscription status from Supabase
-  const canViewContent = !blog.isPremium || hasSubscription;
+  if (error || !blog) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-20">
+          <div className="container">
+            <div className="text-center py-20">
+              <h1 className="text-2xl font-bold mb-4">Blog Not Found</h1>
+              <p className="text-muted-foreground mb-6">{error || 'The blog you are looking for does not exist.'}</p>
+              <Button asChild>
+                <Link to="/blogs">Back to Blogs</Link>
+              </Button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
       <main className="pt-20">
-        <div className="container max-w-4xl mx-auto py-8 px-4">
-          {/* Back Navigation */}
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8 transition-colors">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
-
-          {/* Blog Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <Badge variant="secondary">{blog.category}</Badge>
-              {blog.isPremium && (
-                <Badge className="bg-gradient-premium text-premium-foreground">
-                  <Crown className="h-3 w-3 mr-1" />
-                  Premium
-                </Badge>
-              )}
-            </div>
-            
-            <h1 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
-              {blog.title}
-            </h1>
-            
-            <p className="text-lg text-muted-foreground mb-6">
-              {blog.description}
-            </p>
-            
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <span>By {blog.author}</span>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {blog.readTime}
+        {/* Blog Content */}
+        <section className="py-12">
+          <div className="container">
+            <div className="max-w-4xl mx-auto">
+              {/* Back Button */}
+              <div className="mb-6">
+                <Button variant="ghost" asChild className="gap-2">
+                  <Link to="/blogs">
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Blogs
+                  </Link>
+                </Button>
               </div>
-              <div className="flex items-center gap-1">
-                <Eye className="h-4 w-4" />
-                {blog.views}
-              </div>
-              <span>{new Date(blog.publishedAt).toLocaleDateString()}</span>
-            </div>
-          </div>
 
-          {/* Content Area */}
-          {canViewContent ? (
-            <Card className="bg-gradient-card border-0">
-              <CardContent className="p-8">
-                <div 
-                  className="prose prose-lg max-w-none dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: blog.content }}
-                />
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="bg-gradient-card border-0 text-center">
-              <CardHeader className="pb-4">
-                <div className="mx-auto w-16 h-16 rounded-full bg-gradient-premium/10 flex items-center justify-center mb-4">
-                  <Lock className="h-8 w-8 text-primary" />
+              {/* Header */}
+              <div className="mb-8">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex gap-2">
+                    {blog.tags?.slice(0, 3).map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="text-sm">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                  {getPremiumContentInfo(blog.is_premium).badge}
                 </div>
-                <CardTitle className="text-2xl mb-2">Premium Content</CardTitle>
-                <p className="text-muted-foreground">
-                  This content is available exclusively to our premium subscribers.
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-muted/50 rounded-lg p-6">
-                  <h4 className="font-semibold mb-2">What you'll get with Premium:</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1 text-left max-w-md mx-auto">
-                    <li>• Access to all premium blogs and articles</li>
-                    <li>• Exclusive video content and tutorials</li>
-                    <li>• Advanced coding examples and projects</li>
-                    <li>• Priority support and community access</li>
-                  </ul>
+
+                <h1 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
+                  {blog.title}
+                </h1>
+
+                {blog.excerpt && (
+                  <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                    {blog.excerpt}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-8">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    {getReadingTime(blog.content)} min read
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    {formatDate(blog.created_at)}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4" />
+                    Published
+                  </div>
                 </div>
-                
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  {user ? (
-                    <Button className="bg-gradient-premium hover:opacity-90">
-                      <Crown className="h-4 w-4 mr-2" />
-                      Upgrade to Premium
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 mb-8">
+                  {blog.is_premium && !canAccessPremiumContent ? (
+                    <Button variant="premium" size="lg" asChild>
+                      <Link to={`/premium/blog/${blog.id}`}>
+                        <Crown className="h-4 w-4 mr-2" />
+                        Unlock with Premium
+                      </Link>
                     </Button>
                   ) : (
-                    <>
-                      <Button asChild>
-                        <Link to="/auth">Sign In to Subscribe</Link>
-                      </Button>
-                      <Button variant="outline" asChild>
-                        <Link to="/auth">Create Account</Link>
-                      </Button>
-                    </>
+                    <Button variant="default" size="lg" asChild>
+                      <Link to={`/blog/${blog.id}`}>
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        Read Full Article
+                      </Link>
+                    </Button>
+                  )}
+                  
+                  <Button variant="outline" size="lg" asChild>
+                    <Link to="/pricing">
+                      <Crown className="h-4 w-4 mr-2" />
+                      View Premium Plans
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Content Preview */}
+              <div className="prose prose-lg max-w-none mb-12">
+                <div className="bg-muted/20 rounded-lg p-6 border">
+                  <h3 className="text-lg font-semibold mb-3">Content Preview</h3>
+                  <div className="line-clamp-6 text-muted-foreground">
+                    {ContentService.getContentPreview(blog.content, 500)}
+                  </div>
+                  {blog.is_premium && !canAccessPremiumContent && (
+                    <div className="mt-4 p-4 bg-gradient-to-r from-premium/10 to-accent/10 rounded-lg border border-premium/20">
+                      <p className="text-sm text-premium font-medium">
+                        🔒 This is premium content. Subscribe to unlock the full article and access all premium features.
+                      </p>
+                    </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+              </div>
+
+              {/* Related Blogs */}
+              {relatedBlogs.length > 0 && (
+                <div className="mb-12">
+                  <h3 className="text-2xl font-bold mb-6">Related Articles</h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {relatedBlogs.map((relatedBlog) => {
+                      const contentInfo = getPremiumContentInfo(relatedBlog.is_premium);
+                      return (
+                        <Card key={relatedBlog.id} className="group hover:shadow-lg transition-all duration-300">
+                          <CardHeader className="pb-3">
+                            <div className="flex items-start justify-between">
+                              <div className="flex gap-2">
+                                {relatedBlog.tags?.slice(0, 2).map((tag, index) => (
+                                  <Badge key={index} variant="secondary" className="text-xs">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                              {contentInfo.badge}
+                            </div>
+                            <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
+                              {relatedBlog.title}
+                            </CardTitle>
+                          </CardHeader>
+                          
+                          <CardContent className="pt-0">
+                            <CardDescription className="line-clamp-2 mb-3">
+                              {ContentService.getContentPreview(relatedBlog.content, 100)}
+                            </CardDescription>
+                            <Button
+                              variant={contentInfo.buttonVariant}
+                              size="sm"
+                              className="w-full"
+                              asChild
+                            >
+                              <Link to={contentInfo.linkPath(relatedBlog.id)}>
+                                {contentInfo.buttonText}
+                              </Link>
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Call to Action */}
+              <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-2xl p-8 text-center">
+                <h3 className="text-2xl font-bold mb-4">Enjoyed this article?</h3>
+                <p className="text-muted-foreground mb-6">
+                  Subscribe to our premium plan to unlock access to all premium content and exclusive articles.
+                </p>
+                <div className="flex gap-4 justify-center">
+                  <Button variant="outline" asChild>
+                    <Link to="/blogs">Browse More Blogs</Link>
+                  </Button>
+                  <Button variant="default" asChild>
+                    <Link to="/pricing">View Pricing Plans</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       
       <Footer />
