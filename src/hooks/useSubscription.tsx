@@ -7,7 +7,7 @@ export interface Subscription {
   user_id: string;
   email: string;
   subscription_tier: string;
-  subscription_status: 'active' | 'inactive' | 'expired' | 'pending';
+  subscription_status: string;
   subscription_end: string | null;
   created_at: string;
   updated_at: string;
