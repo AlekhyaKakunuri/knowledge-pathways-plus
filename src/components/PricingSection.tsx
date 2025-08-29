@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Zap } from "lucide-react";
+import { Check, X } from "lucide-react";
 import UPIPayment from "@/components/UPIPayment";
 
 const PricingSection = () => {
@@ -11,59 +11,39 @@ const PricingSection = () => {
     {
       name: "Free",
       price: "0",
-      description: "Perfect for getting started with learning",
+      priceInr: "₹0",
+      period: "forever",
+      description: "Perfect for getting started",
       features: [
-        "Access to free blog posts",
-        "Basic video tutorials",
-        "Community forum access",
-        "Mobile app access",
-        "Email support"
+        { text: "Access 1 blog article only", included: true },
+        { text: "No access to premium content", included: false },
+        { text: "No community/forum access", included: false }
       ],
-      buttonText: "Get Started Free",
+      buttonText: "Start Free",
       buttonVariant: "outline",
       popular: false
     },
     {
       name: "Premium",
       price: "19",
-      description: "Unlock all premium content and features",
+      priceInr: "₹19",
+      period: "month",
+      description: "Unlock unlimited learning",
       features: [
-        "Everything in Free",
-        "All premium blog posts",
-        "Complete video course library",
-        "Downloadable resources",
-        "Priority support",
-        "Offline content access",
-        "Progress tracking",
-        "Certificates of completion"
+        { text: "Unlimited access to all blog articles", included: true },
+        { text: "Exclusive premium content", included: true },
+        { text: "Community/forum access", included: true }
       ],
-      buttonText: "Start Premium Trial",
-      buttonVariant: "hero",
+      buttonText: "Go Premium",
+      buttonVariant: "default",
       popular: true
-    },
-    {
-      name: "Enterprise",
-      price: "99",
-      description: "For teams and organizations",
-      features: [
-        "Everything in Premium",
-        "Team management dashboard",
-        "Custom learning paths",
-        "Analytics and reporting",
-        "Single sign-on (SSO)",
-        "Dedicated account manager",
-        "Custom integrations",
-        "24/7 phone support"
-      ],
-      buttonText: "Contact Sales",
-      buttonVariant: "premium",
-      popular: false
     }
   ];
 
   const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
   const [openUPI, setOpenUPI] = useState(false);
   const navigate = useNavigate();
+  
   const handleSelectPlan = (plan: any) => {
     if (plan.name === "Free") {
       navigate("/blogs");
@@ -74,66 +54,82 @@ const PricingSection = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-secondary/20 to-accent/5">
+    <section className="py-20 bg-white">
       <div className="container">
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-            Choose Your Learning Journey
+          <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-gray-900">
+            Choose Your Plan
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Start free and upgrade when you're ready to unlock premium content and advanced features
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Start free, upgrade anytime for unlimited access.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan, index) => (
             <Card 
               key={plan.name} 
-              className={`relative transition-all duration-300 hover:shadow-soft ${
+              className={`relative transition-all duration-300 hover:shadow-lg ${
                 plan.popular 
-                  ? 'border-primary shadow-glow scale-105 bg-gradient-card' 
-                  : 'bg-gradient-card border-0'
-              }`}
+                  ? 'border-blue-500 shadow-lg scale-105' 
+                  : 'border-gray-200 shadow-md'
+              } bg-white`}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-gradient-hero text-white px-4 py-1">
-                    <Crown className="h-3 w-3 mr-1" />
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
                     Most Popular
                   </Badge>
                 </div>
               )}
               
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-xl mb-2">{plan.name}</CardTitle>
-                <div className="mb-4">
-                  <span className="text-4xl font-bold text-primary">
-                    ${plan.price}
+              <CardHeader className="text-center pb-6">
+                <CardTitle className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</CardTitle>
+                <div className="mb-2">
+                  <span className={`text-5xl font-bold ${
+                    plan.popular ? 'text-blue-600' : 'text-gray-900'
+                  }`}>
+                    ₹{plan.price}
                   </span>
-                  <span className="text-muted-foreground">/month</span>
+                  <span className="text-gray-500 text-lg">/{plan.period}</span>
                 </div>
-                <CardDescription>{plan.description}</CardDescription>
+                <CardDescription className="text-gray-600">{plan.description}</CardDescription>
               </CardHeader>
               
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <ul className="space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-success/10 flex items-center justify-center mt-0.5">
-                        <Check className="h-3 w-3 text-success" />
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center gap-3">
+                      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
+                        feature.included 
+                          ? 'bg-green-100 text-green-600' 
+                          : 'bg-red-100 text-red-600'
+                      }`}>
+                        {feature.included ? (
+                          <Check className="h-3 w-3" />
+                        ) : (
+                          <X className="h-3 w-3" />
+                        )}
                       </div>
-                      <span className="text-sm">{feature}</span>
+                      <span className={`text-sm ${
+                        feature.included ? 'text-gray-700' : 'text-gray-500'
+                      }`}>
+                        {feature.text}
+                      </span>
                     </li>
                   ))}
                 </ul>
                 
                 <Button 
                   variant={plan.buttonVariant as any} 
-                  className="w-full"
+                  className={`w-full mt-6 ${
+                    plan.popular 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                      : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
                   size="lg"
                   onClick={() => handleSelectPlan(plan)}
                 >
-                  {plan.name === "Premium" && <Zap className="h-4 w-4 mr-2" />}
                   {plan.buttonText}
                 </Button>
               </CardContent>
@@ -142,8 +138,8 @@ const PricingSection = () => {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-sm text-muted-foreground">
-            All plans include a 14-day free trial. No credit card required for free tier.
+          <p className="text-sm text-gray-500">
+            All plans include lifetime access to your account. Cancel anytime.
           </p>
         </div>
 

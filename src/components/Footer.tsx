@@ -1,71 +1,114 @@
-import { BookOpen, Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
+import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-primary text-primary-foreground">
-      <div className="container py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-                <BookOpen className="h-6 w-6" />
-              </div>
-              <span className="text-xl font-bold">EduPlatform</span>
-            </div>
-            <p className="text-primary-foreground/80 text-sm leading-relaxed">
-              Empowering learners worldwide with premium educational content and expert-led courses.
+    <footer className="bg-slate-900 text-white">
+      {/* Main Footer Content */}
+      <div className="container py-12 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          {/* Company Information */}
+          <div className="text-center md:text-left">
+            <h3 className="text-2xl font-bold text-blue-400 mb-4">EduMentor</h3>
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              Empowering professionals worldwide with the skills and knowledge needed to excel in their careers.
             </p>
-            <div className="flex items-center gap-4">
-              <a href="#" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-                <Facebook className="h-5 w-5" />
+            
+            {/* Social Media Icons with Original Brand Colors */}
+            <div className="flex justify-center md:justify-start space-x-4">
+              {/* Facebook - Original Facebook Blue */}
+              <a href="#" className="w-10 h-10 bg-[#1877F2] rounded-full flex items-center justify-center hover:bg-[#166FE5] transition-colors">
+                <Facebook className="w-5 h-5 text-white" />
               </a>
-              <a href="#" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-                <Twitter className="h-5 w-5" />
+              {/* Twitter - Original Twitter Blue */}
+              <a href="#" className="w-10 h-10 bg-[#1DA1F2] rounded-full flex items-center justify-center hover:bg-[#1A91DA] transition-colors">
+                <Twitter className="w-5 h-5 text-white" />
               </a>
-              <a href="#" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-                <Linkedin className="h-5 w-5" />
+              {/* LinkedIn - Original LinkedIn Blue */}
+              <a href="#" className="w-10 h-10 bg-[#0A66C2] rounded-full flex items-center justify-center hover:bg-[#094EA3] transition-colors">
+                <Linkedin className="w-5 h-5 text-white" />
               </a>
-              <a href="#" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-                <Instagram className="h-5 w-5" />
+              {/* Instagram - Original Instagram Gradient */}
+              <a href="#" className="w-10 h-10 bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCAF45] rounded-full flex items-center justify-center hover:opacity-90 transition-opacity">
+                <Instagram className="w-5 h-5 text-white" />
               </a>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="font-semibold">Content</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Blog Posts</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Video Courses</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Tutorials</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Resources</a></li>
+          {/* Quick Links */}
+          <div className="text-center md:text-left">
+            <h4 className="text-lg font-bold mb-4">Quick Links</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/" className="text-gray-300 hover:text-white transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="text-gray-300 hover:text-white transition-colors">
+                  Courses
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-gray-300 hover:text-white transition-colors">
+                  Mentors
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="font-semibold">Company</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">About Us</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Careers</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Contact</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Press</a></li>
-            </ul>
+          {/* Contact & Support */}
+          <div className="text-center md:text-left">
+            <h4 className="text-lg font-bold mb-4">Contact & Support</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-center md:justify-start gap-2">
+                <Mail className="w-4 h-4 text-blue-400" />
+                <span className="text-gray-300">support@edumentor.com</span>
+              </div>
+              <div className="flex items-center justify-center md:justify-start gap-2">
+                <Phone className="w-4 h-4 text-blue-400" />
+                <span className="text-gray-300">+91 (987) 654-3210</span>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="font-semibold">Support</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Help Center</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Refund Policy</a></li>
-            </ul>
+          {/* Registration Office */}
+          <div className="text-center md:text-left">
+            <h4 className="text-lg font-bold mb-4">Registration Office</h4>
+            <div className="flex items-start justify-center md:justify-start gap-2">
+              <MapPin className="w-4 h-4 text-blue-400 mt-1" />
+              <div className="text-gray-300 text-sm">
+                <div>EduMentor Education Center</div>
+                <div>123 Learning Street, Tech City</div>
+                <div>TC 12345, India</div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="border-t border-primary-foreground/20 mt-12 pt-8 text-center">
-          <p className="text-primary-foreground/60 text-sm">
-            © 2024 EduPlatform. All rights reserved.
-          </p>
+      {/* Bottom Section - Copyright and Legal */}
+      <div className="border-t border-slate-700">
+        <div className="container py-6 px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-gray-300 text-sm">
+              © 2024 EduMentor. All rights reserved.
+            </div>
+            <div className="flex items-center space-x-4 text-sm">
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                Privacy Policy
+              </a>
+              <span className="text-gray-600">|</span>
+              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                Terms of Service
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

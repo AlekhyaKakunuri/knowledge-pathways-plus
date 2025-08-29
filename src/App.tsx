@@ -4,8 +4,6 @@ import { AuthProvider } from "./hooks/useAuth";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "./components/ui/sonner";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 import Index from "./pages/Index";
 import Pricing from "./pages/Pricing";
 import AllBlogs from "./pages/AllBlogs";
@@ -14,8 +12,10 @@ import PremiumDetails from "./pages/PremiumDetails";
 import CourseDetail from "./pages/CourseDetail";
 import BlogDetail from "./pages/BlogDetail";
 import AdminDashboard from "./pages/AdminDashboard";
+import Contact from "./pages/Contact";
 import WhatsAppChat from "./components/WhatsAppChat";
 import FloatingBookingButton from "./components/FloatingBookingButton";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +26,9 @@ function App() {
         <TooltipProvider>
           <Router>
             <div className="min-h-screen bg-background">
+              {/* Scroll to top on route change */}
+              <ScrollToTop />
+              
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/pricing" element={<Pricing />} />
@@ -35,6 +38,7 @@ function App() {
                 <Route path="/course/:id" element={<CourseDetail />} />
                 <Route path="/blog/:id" element={<BlogDetail />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/contact" element={<Contact />} />
               </Routes>
               
               {/* Global Components */}

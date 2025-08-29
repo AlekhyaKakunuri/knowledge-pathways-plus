@@ -1,86 +1,49 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BookOpen, Play, Calendar, Users, Star, Clock } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-background via-background to-muted/30 py-20 lg:py-32">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-      
+    <section className="relative overflow-hidden bg-white py-16 lg:py-24 px-4">
       <div className="container relative z-10">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Main Heading */}
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
-            Master Modern
-            <span className="block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-              Web Development
-            </span>
-          </h1>
-          
-          {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-            Learn React, Next.js, and full-stack development with hands-on projects, 
-            expert guidance, and a supportive community.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link to="/blogs">
-              <Button size="lg" className="text-lg px-8 py-3 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90">
-                <BookOpen className="h-5 w-5 mr-2" />
-                Start Learning Free
-              </Button>
-            </Link>
+        <div className="grid lg:grid-cols-2 gap-2 lg:gap-4 items-center">
+          {/* Left Content */}
+          <div className="space-y-6 lg:space-y-6 text-center lg:text-left">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-tight">
+              From Learning to <span className="text-blue-600">Placement</span> – We're With You
+            </h1>
             
-            <Link to="/courses">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-3 border-2 hover:bg-muted/50">
-                <Play className="h-5 w-5 mr-2" />
-                Explore Courses
-              </Button>
-            </Link>
-          </div>
-
-          {/* 1-to-1 Session Button */}
-          <div className="mb-12">
-            <Button 
-              size="lg" 
-              variant="default"
-              className="text-lg px-8 py-3 bg-gradient-to-r from-premium to-accent hover:from-premium/90 hover:to-accent/90 text-premium-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              onClick={() => {
-                // This will be handled by the parent component
-                const event = new CustomEvent('openCalendly');
-                window.dispatchEvent(event);
-              }}
-            >
-              <Calendar className="h-5 w-5 mr-2" />
-              Book 1-to-1 Session
-            </Button>
-            <p className="text-sm text-muted-foreground mt-2">
-              Get personalized guidance from our experts
+            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl lg:max-w-none mx-auto lg:mx-0">
+              Live mentor-led training + Career support until you succeed.
             </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Button size="lg" className="text-lg px-6 sm:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white">
+                Enroll Now
+              </Button>
+              
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-6 sm:px-8 py-3 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                onClick={() => {
+                  const event = new CustomEvent('openCalendly');
+                  window.dispatchEvent(event);
+                }}
+              >
+                Talk to a Mentor
+              </Button>
+            </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-primary mb-1">500+</div>
-              <div className="text-sm text-muted-foreground">Students</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-primary mb-1">50+</div>
-              <div className="text-sm text-muted-foreground">Courses</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-primary mb-1">4.9</div>
-              <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-                <Star className="h-3 w-3 fill-current" />
-                Rating
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-primary mb-1">24/7</div>
-              <div className="text-sm text-muted-foreground">Support</div>
+          {/* Right Image */}
+          <div className="flex justify-center lg:justify-end order-first lg:order-last">
+            <div className="relative w-80 h-80 sm:w-96 sm:h-96 lg:w-[420px] lg:h-[420px]">
+              <img 
+                src="/heroSectionImg.jpg" 
+                alt="Professional collaboration and mentorship scene"
+                className="w-full h-full object-cover rounded-2xl shadow-xl"
+              />
             </div>
           </div>
         </div>

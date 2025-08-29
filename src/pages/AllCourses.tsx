@@ -2,12 +2,26 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Eye, Video, Crown, Search, Loader2, Filter, X, TrendingUp, Star, Users, Play, Construction } from "lucide-react";
+import { Clock, Eye, Video, Crown, Search, Loader2, Filter, X, TrendingUp, Star, Users, Play, Construction, Code, Brain } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ContentService, ContentFilters } from "@/services/contentService";
+
+interface Course {
+  id: string;
+  title: string;
+  duration: string;
+  currentPrice: string;
+  originalPrice: string;
+  tag?: string;
+  icon: React.ReactNode;
+  slug: string;
+  description: string;
+  category: string;
+  level: string;
+}
 
 const AllCourses = () => {
   const [loading, setLoading] = useState(false);
@@ -27,6 +41,35 @@ const AllCourses = () => {
       console.error('Error fetching categories:', error);
     }
   };
+
+  // Sample course data - in real app this would come from API
+  const courses: Course[] = [
+    {
+      id: '1',
+      title: 'Python Programming',
+      duration: '4 Months',
+      currentPrice: 'Free',
+      originalPrice: '₹19,999',
+      icon: <Code className="w-8 h-8 text-green-600" />,
+      slug: 'python-programming',
+      description: 'Master Python programming fundamentals with hands-on projects and real-world applications.',
+      category: 'Programming',
+      level: 'Beginner'
+    },
+    {
+      id: '2',
+      title: 'AI Technologies',
+      duration: '6 Months',
+      currentPrice: '₹499',
+      originalPrice: '₹999',
+      tag: 'Premium',
+      icon: <Brain className="w-8 h-8 text-purple-600" />,
+      slug: 'ai-technologies',
+      description: 'Learn artificial intelligence, machine learning, and deep learning technologies.',
+      category: 'AI & ML',
+      level: 'Advanced'
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-background">

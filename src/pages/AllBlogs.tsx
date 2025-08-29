@@ -1,149 +1,120 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Clock, BookOpen, Crown, Search, Lock, Unlock, Filter, X, TrendingUp, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { ContentService, Blog, ContentFilters } from "@/services/contentService";
-import { useSubscription } from "@/hooks/useSubscription";
+import { blogService, BlogWithImage } from "@/services/blogService";
 
 const AllBlogs = () => {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
+  const [blogs, setBlogs] = useState<BlogWithImage[]>([]);
+  const [filteredBlogs, setFilteredBlogs] = useState<BlogWithImage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<ContentFilters>({});
-  const [categories, setCategories] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
-  
-  // Get subscription status
-  const { canAccessPremiumContent, loading: subscriptionLoading } = useSubscription();
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        setLoading(true);
+        const fetchedBlogs = await blogService.getPublishedBlogs();
+        setBlogs(fetchedBlogs);
+        setFilteredBlogs(fetchedBlogs);
+      } catch (err) {
+        setError("Failed to fetch blogs");
+        console.error("Error fetching blogs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchBlogs();
-    fetchCategories();
   }, []);
 
   useEffect(() => {
-    applyFilters();
-  }, [blogs, filters]);
+    let filtered = blogs;
 
-  const fetchBlogs = async () => {
-    try {
-      setLoading(true);
-      const blogsData = await ContentService.getBlogs();
-      setBlogs(blogsData);
-    } catch (error) {
-      console.error('Error fetching blogs:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const contentCategories = await ContentService.getContentCategories();
-      setCategories(contentCategories.blogTags);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  const applyFilters = () => {
-    let filtered = [...blogs];
-
-    // Apply search filter
-    if (filters.search) {
-      const searchTerm = filters.search.toLowerCase();
+    // Filter by search term
+    if (searchTerm) {
       filtered = filtered.filter(blog =>
-        blog.title.toLowerCase().includes(searchTerm) ||
-        blog.excerpt?.toLowerCase().includes(searchTerm) ||
-        blog.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
+        blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (blog.excerpt && blog.excerpt.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (blog.content && blog.content.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
-    // Apply category filter
-    if (filters.category && filters.category !== 'all') {
+    // Filter by category (tags)
+    if (selectedCategory !== "all") {
       filtered = filtered.filter(blog =>
-        blog.tags?.some(tag => tag.toLowerCase() === filters.category?.toLowerCase())
+        blog.tags && blog.tags.some(tag => 
+          tag.toLowerCase() === selectedCategory.toLowerCase()
+        )
       );
-    }
-
-    // Apply premium filter
-    if (filters.isPremium !== undefined) {
-      filtered = filtered.filter(blog => blog.is_premium === filters.isPremium);
     }
 
     setFilteredBlogs(filtered);
+  }, [blogs, searchTerm, selectedCategory]);
+
+  const getUniqueCategories = () => {
+    const categories = new Set<string>();
+    blogs.forEach(blog => {
+      if (blog.tags) {
+        blog.tags.forEach(tag => categories.add(tag));
+      }
+    });
+    return Array.from(categories).sort();
   };
 
-  const handleFilterChange = (key: keyof ContentFilters, value: any) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-
-  const clearFilters = () => {
-    setFilters({});
-  };
-
-  const getFilteredStats = () => {
-    const total = blogs.length;
-    const free = blogs.filter(blog => !blog.is_premium).length;
-    const premium = blogs.filter(blog => blog.is_premium).length;
-    const filtered = filteredBlogs.length;
-
-    return { total, free, premium, filtered };
-  };
-
-  // Helper function to get premium content display info
-  const getPremiumContentInfo = (isPremium: boolean) => {
-    if (!isPremium) {
-      return {
-        badge: null,
-        buttonText: "Read Article",
-        buttonVariant: "default" as const,
-        linkPath: (id: string) => `/blog/${id}`
-      };
-    }
-
-    if (canAccessPremiumContent) {
-      return {
-        badge: (
-          <Badge className="bg-green-100 text-green-700 border-green-200">
-            <Unlock className="h-3 w-3 mr-1" />
-            Unlocked
-          </Badge>
-        ),
-        buttonText: "Read Full Article",
-        buttonVariant: "default" as const,
-        linkPath: (id: string) => `/blog/${id}` // Premium users can access via regular blog route
-      };
-    }
-
-    return {
-      badge: (
-        <Badge className="bg-gradient-premium text-premium-foreground">
-          <Lock className="h-3 w-3 mr-1" />
-          Premium
-        </Badge>
-      ),
-      buttonText: "Unlock with Premium",
-      buttonVariant: "premium" as const,
-      linkPath: (id: string) => `/premium/blog/${id}`
-    };
-  };
-
-  const stats = getFilteredStats();
-
-  if (loading || subscriptionLoading) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50">
         <Header />
-        <main className="pt-20">
-          <div className="container text-center py-20">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-muted-foreground">Loading blogs...</p>
+        <main className="py-16 lg:py-20 px-4">
+          <div className="container">
+            <div className="text-center mb-12">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                All Blogs
+              </h1>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Explore our collection of educational content and insights
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Card key={i} className="overflow-hidden">
+                  <div className="animate-pulse">
+                    <div className="w-full h-48 bg-gray-300"></div>
+                    <CardHeader className="p-6">
+                      <div className="h-6 bg-gray-300 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-300 rounded"></div>
+                    </CardHeader>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="py-16 lg:py-20 px-4">
+          <div className="container">
+            <div className="text-center">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                All Blogs
+              </h1>
+              <p className="text-lg text-red-600">Failed to load blogs. Please try again later.</p>
+            </div>
           </div>
         </main>
         <Footer />
@@ -152,236 +123,117 @@ const AllBlogs = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <Header />
-      
-      <main className="pt-20">
-        {/* Header */}
-        <section className="bg-gradient-to-r from-background to-secondary/20 py-12">
-          <div className="container text-center">
-            <h1 className="text-4xl font-bold mb-4">All Blog Posts</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Explore our collection of articles covering web development, programming, and technology insights
+      <main className="py-16 lg:py-20 px-4">
+        <div className="container">
+          {/* Header */}
+          <div className="text-center mb-12 lg:mb-16">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              All Blogs
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Explore our collection of educational content and insights
             </p>
-            
-            {/* Content Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-              <div className="bg-white/50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-primary">{stats.total}</div>
-                <div className="text-sm text-muted-foreground">Total Blogs</div>
-              </div>
-              <div className="bg-white/50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-green-600">{stats.free}</div>
-                <div className="text-sm text-muted-foreground">Free Blogs</div>
-              </div>
-              <div className="bg-white/50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-premium">{stats.premium}</div>
-                <div className="text-sm text-muted-foreground">Premium Blogs</div>
-              </div>
-              <div className="bg-white/50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-accent">{stats.filtered}</div>
-                <div className="text-sm text-muted-foreground">Showing</div>
-              </div>
-            </div>
           </div>
-        </section>
 
-        {/* Search and Filters */}
-        <section className="py-8">
-          <div className="container">
-            <div className="flex flex-col gap-4">
-              {/* Search Bar */}
-              <div className="relative max-w-md mx-auto">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* Search and Filters */}
+          <div className="mb-8 lg:mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 max-w-4xl mx-auto">
+              <div className="flex-1">
                 <Input
                   placeholder="Search blogs..."
-                  value={filters.search || ''}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full"
                 />
               </div>
-
-              {/* Filter Toggle */}
-              <div className="flex justify-center">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2"
-                >
-                  <Filter className="h-4 w-4" />
-                  {showFilters ? 'Hide Filters' : 'Show Filters'}
-                </Button>
-              </div>
-
-              {/* Filters Panel */}
-              {showFilters && (
-                <div className="bg-white/50 rounded-lg p-6 max-w-2xl mx-auto w-full">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">Filters</h3>
-                    <Button variant="ghost" size="sm" onClick={clearFilters}>
-                      <X className="h-4 w-4 mr-2" />
-                      Clear All
-                    </Button>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Category Filter */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Category</label>
-                      <select
-                        value={filters.category || 'all'}
-                        onChange={(e) => handleFilterChange('category', e.target.value)}
-                        className="w-full p-2 border rounded-md"
-                      >
-                        <option value="all">All Categories</option>
-                        {categories.map((category) => (
-                          <option key={category} value={category}>
-                            {category}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Premium Filter */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Content Type</label>
-                      <select
-                        value={filters.isPremium === undefined ? 'all' : filters.isPremium.toString()}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value === 'all') {
-                            handleFilterChange('isPremium', undefined);
-                          } else {
-                            handleFilterChange('isPremium', value === 'true');
-                          }
-                        }}
-                        className="w-full p-2 border rounded-md"
-                      >
-                        <option value="all">All Content</option>
-                        <option value="false">Free Only</option>
-                        <option value="true">Premium Only</option>
-                      </select>
-                    </div>
-
-                    {/* Sort Options */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Sort By</label>
-                      <select
-                        value={filters.sort || 'newest'}
-                        onChange={(e) => handleFilterChange('sort', e.target.value)}
-                        className="w-full p-2 border rounded-md"
-                      >
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="title">Title A-Z</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {getUniqueCategories().map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        </section>
 
-        {/* Blogs Grid */}
-        <section className="py-12">
-          <div className="container">
-            {filteredBlogs.length === 0 ? (
-              <div className="text-center py-20">
-                <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No blogs found</h3>
-                <p className="text-muted-foreground mb-6">
-                  {filters.search || filters.category !== 'all' || filters.isPremium !== undefined
-                    ? "Try adjusting your search or filters"
-                    : "No blogs available at the moment"}
-                </p>
-                {Object.keys(filters).length > 0 && (
-                  <Button onClick={clearFilters} variant="outline">
-                    Clear Filters
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredBlogs.map((blog) => {
-                  const contentInfo = getPremiumContentInfo(blog.is_premium);
-                  return (
-                    <Card key={blog.id} className="group hover:shadow-lg transition-all duration-300">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex gap-2">
-                            {blog.tags?.slice(0, 2).map((tag, index) => (
-                              <Badge key={index} variant="secondary" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                          {contentInfo.badge}
-                        </div>
-                        <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
-                          {blog.title}
-                        </CardTitle>
-                      </CardHeader>
-                      
-                      <CardContent className="pt-0">
-                        <CardDescription className="line-clamp-3 mb-4">
-                          {ContentService.getContentPreview(blog.content, 150)}
-                        </CardDescription>
-                        
-                        <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-3 w-3" />
-                            {ContentService.calculateReadingTime(blog.content)} min read
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <BookOpen className="h-3 w-3" />
-                            {new Date(blog.created_at).toLocaleDateString('en-IN', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric'
-                            })}
-                          </div>
-                        </div>
-                        
-                        <Button
-                          variant={contentInfo.buttonVariant}
-                          className="w-full"
-                          size="sm"
-                          asChild
-                        >
-                          <Link to={contentInfo.linkPath(blog.id)}>
-                            {contentInfo.buttonText}
-                          </Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Call to Action */}
-        <section className="py-16 bg-gradient-to-r from-primary/5 to-accent/5">
-          <div className="container text-center">
-            <TrendingUp className="h-16 w-16 text-primary mx-auto mb-6" />
-            <h2 className="text-3xl font-bold mb-4">Want More Content?</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Subscribe to our premium plan and unlock access to all premium blog posts and exclusive content.
+          {/* Results Count */}
+          <div className="mb-6 text-center sm:text-left">
+            <p className="text-gray-600">
+              Showing {filteredBlogs.length} of {blogs.length} blogs
             </p>
-            <div className="flex gap-4 justify-center">
-              <Button variant="outline" asChild>
-                <Link to="/pricing">View Pricing</Link>
-              </Button>
-              <Button variant="default" asChild>
-                <Link to="/courses">Explore Courses</Link>
+          </div>
+
+          {/* Blogs Grid */}
+          {filteredBlogs.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg">No blogs found matching your criteria.</p>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory("all");
+                }}
+                className="mt-4"
+              >
+                Clear Filters
               </Button>
             </div>
-          </div>
-        </section>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {filteredBlogs.map((blog) => (
+                <Card key={blog.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative">
+                    <img 
+                      src={blog.featured_image_url} 
+                      alt={blog.title}
+                      className="w-full h-48 object-cover"
+                    />
+                    {blog.is_premium && (
+                      <Badge className="absolute top-4 left-4 bg-purple-500 text-white">
+                        Premium
+                      </Badge>
+                    )}
+                  </div>
+                  <CardHeader className="p-6">
+                    <CardTitle className="text-xl font-semibold text-gray-900 mb-2">
+                      {blog.title}
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">
+                      {blog.excerpt || blog.content.substring(0, 120) + '...'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-0">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {blog.tags?.slice(0, 3).map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                    <Link 
+                      to={`/blog/${blog.id}`}
+                      className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center"
+                    >
+                      Read More
+                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
-      
       <Footer />
     </div>
   );

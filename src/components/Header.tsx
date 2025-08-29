@@ -14,7 +14,7 @@ const Header = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-hero">
               <BookOpen className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-primary">EduPlatform</span>
+            <span className="text-xl font-bold text-primary">EduMentor</span>
           </div>
         </div>
       </header>
@@ -29,20 +29,24 @@ const Header = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-hero">
               <BookOpen className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-primary">EduPlatform</span>
+            <span className="text-xl font-bold text-primary">EduMentor</span>
           </Link>
           
           <nav className="hidden md:flex items-center gap-6">
-            <Link to="/blogs" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              <BookOpen className="h-4 w-4" />
-              Blogs
+            <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Home
             </Link>
-            <Link to="/courses" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              <Video className="h-4 w-4" />
-              Videos
+            <Link to="/courses" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Courses
+            </Link>
+            <Link to="/blogs" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Blog
             </Link>
             <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Pricing
+            </Link>
+            <Link to="/contact" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Contact
             </Link>
             {user && (
               <Link to="/admin" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
@@ -67,13 +71,13 @@ const Header = () => {
           ) : (
             <>
               <Link to="/auth">
-                <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
-                  Sign In
+                <Button variant="outline" size="sm" className="hidden sm:inline-flex">
+                  Login
                 </Button>
               </Link>
               <Link to="/auth">
                 <Button variant="hero" size="sm">
-                  Get Started
+                  Sign Up
                 </Button>
               </Link>
             </>
