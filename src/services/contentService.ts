@@ -14,25 +14,24 @@ export interface Blog {
   updated_at: string;
 }
 
-// Temporarily commented out until courses table is created
-// export interface Course {
-//   id: string;
-//   title: string;
-//   description: string;
-//   duration: string;
-//   level: string;
-//   category: string;
-//   instructor: string;
-//   instructor_avatar: string;
-//   thumbnail_url: string | null;
-//   is_premium: boolean;
-//   price: number;
-//   modules: string[];
-//   students_count: number;
-//   rating: number;
-//   created_at: string;
-//   updated_at: string;
-// }
+export interface Course {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  level: string;
+  category: string;
+  instructor: string;
+  instructor_avatar: string;
+  thumbnail_url: string | null;
+  is_premium: boolean;
+  price: number;
+  modules: string[];
+  students_count: number;
+  rating: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface ContentFilters {
   category?: string;
@@ -46,7 +45,7 @@ export interface ContentFilters {
 
 export interface FeaturedContent {
   blogs: Blog[];
-  courses: any[]; // Temporarily any[] until courses table is created
+  courses: Course[];
   stats: {
     totalBlogs: number;
     totalCourses: number;
@@ -147,14 +146,12 @@ export class ContentService {
     }
   }
 
-  // ===== COURSE METHODS (Temporarily commented out) =====
+  // ===== COURSE METHODS =====
   
-  // Temporarily commented out until courses table is created
-  /*
   // Get all courses with optional filtering
   static async getCourses(filters?: ContentFilters): Promise<Course[]> {
     try {
-      let query = supabase
+      let query = (supabase as any)
         .from('courses')
         .select('*');
 
@@ -181,7 +178,7 @@ export class ContentService {
       const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return (data || []) as Course[];
     } catch (error) {
       console.error('Error fetching courses:', error);
       return [];
@@ -201,14 +198,14 @@ export class ContentService {
   // Get course by ID
   static async getCourseById(id: string): Promise<Course | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('courses')
         .select('*')
         .eq('id', id)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
+      if (error && (error as any).code !== 'PGRST116') throw error;
+      return data as Course | null;
     } catch (error) {
       console.error('Error fetching course by ID:', error);
       return null;
@@ -224,7 +221,6 @@ export class ContentService {
   static async getCoursesByLevel(level: string, limit?: number): Promise<Course[]> {
     return this.getCourses({ level, limit });
   }
-  */
 
   // ===== FEATURED CONTENT =====
   
@@ -354,10 +350,8 @@ export class ContentService {
         const blog = await this.getBlogById(id);
         return blog !== null;
       } else {
-        // Course check will be enabled when courses table is created
-        // const course = await this.getCourseById(id);
-        // return course !== null;
-        return false;
+        const course = await this.getCourseById(id);
+        return course !== null;
       }
     } catch (error) {
       return false;
