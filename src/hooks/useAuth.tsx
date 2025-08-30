@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       // Force page reload for clean state
-      window.location.href = '/auth';
+      window.location.href = '/';
     } catch (error) {
       console.error('Error signing out:', error);
     }

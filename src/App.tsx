@@ -13,6 +13,8 @@ import CourseDetail from "./pages/CourseDetail";
 import BlogDetail from "./pages/BlogDetail";
 import AdminDashboard from "./pages/AdminDashboard";
 import Contact from "./pages/Contact";
+import SignUp from "./pages/SignUp";
+import SignIn from "./pages/SignIn";
 import WhatsAppChat from "./components/WhatsAppChat";
 import FloatingBookingButton from "./components/FloatingBookingButton";
 import ScrollToTop from "./components/ScrollToTop";
@@ -31,6 +33,8 @@ function App() {
               
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/signin" element={<SignIn />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/blogs" element={<AllBlogs />} />
                 <Route path="/courses" element={<AllCourses />} />

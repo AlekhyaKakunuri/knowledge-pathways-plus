@@ -3,18 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Eye, EyeOff } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
-const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,61 +42,19 @@ const Auth = () => {
     });
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      cleanupAuthState();
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast({
-            title: "Invalid credentials",
-            description: "Please check your email and password and try again.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Sign in failed",
-            description: error.message,
-            variant: "destructive",
-          });
-        }
-        return;
-      }
-
-      if (data.user) {
-        toast({
-          title: "Welcome back!",
-          description: "You've been signed in successfully.",
-        });
-        window.location.href = '/';
-      }
-    } catch (error) {
-      toast({
-        title: "An error occurred",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    if (!agreeToTerms) {
+      toast({
+        title: "Terms agreement required",
+        description: "Please agree to the Terms & Privacy Policy to continue.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
       toast({
@@ -148,11 +109,8 @@ const Auth = () => {
           title: "Account created!",
           description: "Please check your email to confirm your account.",
         });
-        // Auto switch to login after successful signup
-        setIsLogin(true);
-        setPassword("");
-        setConfirmPassword("");
-        setFullName("");
+        // Redirect to signin page after successful signup
+        window.location.href = '/signin';
       }
     } catch (error) {
       toast({
@@ -165,54 +123,47 @@ const Auth = () => {
     }
   };
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
-    setPassword("");
-    setConfirmPassword("");
-    setFullName("");
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-hero">
-            <BookOpen className="h-7 w-7 text-white" />
-          </div>
-          <span className="text-2xl font-bold text-primary">EduPlatform</span>
-        </div>
-
-        <Card className="shadow-xl border-muted/20">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">
-              {isLogin ? "Welcome back" : "Create account"}
+        <Card className="shadow-lg border-0 bg-white">
+          <CardHeader className="text-center pb-6">
+            <div className="flex items-center justify-center cursor-pointer gap-2 mb-4" onClick={() => window.location.href = '/'}>
+              <button
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 hover:bg-blue-700 transition-colors"
+              >
+                <BookOpen className="h-6 w-6 text-white" />
+              </button>
+              <span className="text-2xl font-bold text-blue-600">EduMentor</span>
+            </div>
+            <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
+              Create Your Account
             </CardTitle>
-            <CardDescription className="text-center">
-              {isLogin 
-                ? "Sign in to access your learning journey" 
-                : "Start your educational journey today"
-              }
+            <CardDescription className="text-lg text-gray-600">
+              Start your learning journey today.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={isLogin ? handleSignIn : handleSignUp} className="space-y-4">
-              {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required={!isLogin}
-                  />
-                </div>
-              )}
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
+                  Full Name
+                </Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Email Address
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -220,19 +171,23 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                  Password
+                </Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder="Create a password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
                   />
                   <Button
                     type="button"
@@ -242,49 +197,75 @@ const Auth = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="h-4 w-4 text-gray-500" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="h-4 w-4 text-gray-500" />
                     )}
                   </Button>
                 </div>
               </div>
 
-              {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+                  Confirm Password
+                </Label>
+                <div className="relative">
                   <Input
                     id="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    required={!isLogin}
+                    required
+                    className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </Button>
                 </div>
-              )}
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={agreeToTerms}
+                  onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+                  className="border-gray-300"
+                />
+                <Label htmlFor="terms" className="text-sm text-gray-600">
+                  I agree to the{" "}
+                  <a href="/terms" className="text-blue-600 hover:underline font-medium">
+                    Terms & Privacy Policy
+                  </a>
+                </Label>
+              </div>
 
               <Button 
                 type="submit" 
-                className="w-full" 
-                variant="hero"
+                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium" 
                 disabled={loading}
               >
-                {loading ? "Please wait..." : (isLogin ? "Sign In" : "Create Account")}
+                {loading ? "Creating Account..." : "Sign Up"}
               </Button>
             </form>
 
             <div className="text-center">
-              <span className="text-sm text-muted-foreground">
-                {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <span className="text-sm text-gray-600">
+                Already have an account?{" "}
               </span>
-              <Button
-                variant="link"
-                onClick={toggleMode}
-                className="p-0 h-auto font-medium"
-              >
-                {isLogin ? "Sign up" : "Sign in"}
-              </Button>
+              <Link to="/signin" className="text-blue-600 hover:text-blue-700 font-medium">
+                Sign In
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -293,4 +274,4 @@ const Auth = () => {
   );
 };
 
-export default Auth;
+export default SignUp;
