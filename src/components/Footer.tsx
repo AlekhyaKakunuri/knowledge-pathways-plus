@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Company Information */}
           <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold text-blue-400 mb-4">EduMentor</h3>
+            <h3 className="text-2xl font-bold text-theme-primary mb-4">EduMentor</h3>
             <p className="text-gray-300 mb-6 leading-relaxed">
               Empowering professionals worldwide with the skills and knowledge needed to excel in their careers.
             </p>
@@ -67,11 +67,11 @@ const Footer = () => {
             <h4 className="text-lg font-bold mb-4">Contact & Support</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-center md:justify-start gap-2">
-                <Mail className="w-4 h-4 text-blue-400" />
+                                 <Mail className="w-4 h-4 text-theme-primary" />
                 <span className="text-gray-300">support@edumentor.com</span>
               </div>
               <div className="flex items-center justify-center md:justify-start gap-2">
-                <Phone className="w-4 h-4 text-blue-400" />
+                                 <Phone className="w-4 h-4 text-theme-primary" />
                 <span className="text-gray-300">+91 (987) 654-3210</span>
               </div>
             </div>
@@ -81,7 +81,7 @@ const Footer = () => {
           <div className="text-center md:text-left">
             <h4 className="text-lg font-bold mb-4">Registration Office</h4>
             <div className="flex items-start justify-center md:justify-start gap-2">
-              <MapPin className="w-4 h-4 text-blue-400 mt-1" />
+              <MapPin className="w-4 h-4 text-theme-primary mt-1" />
               <div className="text-gray-300 text-sm">
                 <div>EduMentor Education Center</div>
                 <div>123 Learning Street, Tech City</div>

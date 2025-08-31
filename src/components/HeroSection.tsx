@@ -3,35 +3,31 @@ import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
-    <section className="relative overflow-hidden bg-white py-16 lg:py-24 px-4">
+    <section className="relative overflow-hidden bg-white py-12 md:py-16 lg:py-20 xl:py-24 px-4">
       <div className="container relative z-10">
-        <div className="grid lg:grid-cols-2 gap-2 lg:gap-4 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Content */}
-          <div className="space-y-6 lg:space-y-6 text-center lg:text-left">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-tight">
-              From Learning to <span className="text-blue-600">Placement</span> – We're With You
+          <div className="space-y-4 md:space-y-6 text-center lg:text-left">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold leading-tight">
+              From Learning to <span className="text-theme-primary">Placement</span> – We're With You
             </h1>
             
-            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl lg:max-w-none mx-auto lg:mx-0">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed max-w-2xl lg:max-w-none mx-auto lg:mx-0">
               Live mentor-led training + Career support until you succeed.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button size="lg" className="text-lg px-6 sm:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white">
-                Enroll Now
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
+                              <Button size="lg" className="text-base md:text-lg px-6 md:px-8 py-2.5 md:py-3 bg-theme-primary hover:bg-theme-primary-hover text-white">
+                  Get Started
+                </Button>
               
               <Button 
-                size="lg" 
                 variant="outline" 
-                className="text-lg px-6 sm:px-8 py-3 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
-                onClick={() => {
-                  const event = new CustomEvent('openCalendly');
-                  window.dispatchEvent(event);
-                }}
+                size="lg" 
+                className="text-base md:text-lg px-6 md:px-8 py-2.5 md:py-3 border-2 border-theme-primary text-theme-primary hover:bg-theme-bg-light"
               >
-                Talk to a Mentor
+                Learn More
               </Button>
             </div>
           </div>

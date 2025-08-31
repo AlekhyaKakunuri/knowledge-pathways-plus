@@ -1,0 +1,246 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { X, ChevronDown, ChevronUp, Download } from "lucide-react";
+import { jsPDF } from "jspdf";
+
+interface CourseCurriculumModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  courseTitle: string;
+}
+
+interface WeekModule {
+  week: number;
+  title: string;
+  content: string[];
+}
+
+const CourseCurriculumModal = ({ isOpen, onClose, courseTitle }: CourseCurriculumModalProps) => {
+  const [expandedWeeks, setExpandedWeeks] = useState<number[]>([1, 2, 3, 4, 5]); // First 5 weeks expanded by default
+
+  const toggleWeek = (week: number) => {
+    setExpandedWeeks(prev => 
+      prev.includes(week) 
+        ? prev.filter(w => w !== week)
+        : [...prev, week]
+    );
+  };
+
+  // AI Engineering Course Curriculum from PDF - 8-Week Learning Plan
+  const curriculum: WeekModule[] = [
+    {
+      week: 1,
+      title: "Foundation & API Integration",
+      content: ["LLM architecture, Embeddings, Transformer", "RLHF, Temperature etc…", "Open AI API, system/user prompts & basic context engineering."]
+    },
+    {
+      week: 2,
+      title: "Advanced Prompting & Context",
+      content: ["Prompt Engineering(In-depth), Memory and more around Context Engineering", "Intro to Tool-calling"]
+    },
+    {
+      week: 3,
+      title: "Tool Integration & MCP",
+      content: ["Projects involving tool calling, Model Context Protocol, MCP clients and servers"]
+    },
+    {
+      week: 4,
+      title: "Vector Databases & RAG",
+      content: ["Vector Databases deep-dive", " RAG, Agentic RAG, chunking strategies. HyDe, Re-ranking, TF-IDF and more on retrieval technique."]
+    },
+    {
+      week: 5,
+      title: "AI Frameworks & Projects",
+      content: ["Framework knowledge : Langchain, Langgraph, Langsmith & Crew AI and projects"]
+    },
+    {
+      week: 6,
+      title: "Advanced AI Concepts",
+      content: ["Think of and write robust Evals, Open AI Whisper, Voice AI and streaming, TTS, STT etc"]
+    },
+    {
+      week: 7,
+      title: "Production Deployment",
+      content: [" Stable Diffusion, Image Generation, Finetuning, Knowledge-distillation & Deployment"]
+    },
+    {
+      week: 8,
+      title: "Capstone Project",
+      content: ["Building together Capstone Project"]
+    }
+  ];
+
+  const downloadCurriculumPDF = async () => {
+    try {
+      // Create a new PDF document
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      // Set document properties
+      pdf.setProperties({
+        title: 'AI Engineering Course Curriculum',
+        subject: '8-Week Learning Plan',
+        author: 'Knowledge Pathways Plus',
+        creator: 'Knowledge Pathways Plus'
+      });
+
+      // Add header
+      pdf.setFontSize(24);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('AI Engineering - Course Curriculum', 20, 30);
+      
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('8-Week Learning Plan', 20, 40);
+
+      // Add curriculum content
+      let yPosition = 60;
+      
+      curriculum.forEach((week) => {
+        // Week number in blue
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(0, 102, 204); // Blue color for week numbers
+        pdf.text(`Week ${week.week}:`, 20, yPosition);
+        
+        // Week title in bold, black
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(0, 0, 0); // Black color for title
+        pdf.text(week.title, 20, yPosition + 8);
+        
+        // Week content as bullet points
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(100, 100, 100); // Gray color for content
+        
+        let contentYPosition = yPosition + 16;
+        
+        week.content.forEach((item, index) => {
+          // Add bullet point
+          pdf.setTextColor(0, 102, 204); // Blue bullet
+          pdf.text('•', 20, contentYPosition);
+          
+          // Add content text
+          pdf.setTextColor(100, 100, 100); // Gray text
+          pdf.text(item, 25, contentYPosition); // Indent content after bullet
+          
+          // Calculate next position based on content length
+          const maxWidth = 165; // Maximum width for text (accounting for bullet indent)
+          const lines = pdf.splitTextToSize(item, maxWidth);
+          
+          if (lines.length > 1) {
+            // If content spans multiple lines, adjust spacing
+            contentYPosition += (lines.length * 5) + 3;
+          } else {
+            contentYPosition += 6; // Standard line spacing
+          }
+        });
+        
+        // Move to next week with proper spacing
+        yPosition = contentYPosition + 8;
+      });
+
+      // Add footer
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text('Generated by Knowledge Pathways Plus', 20, 280);
+      pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 285);
+
+      // Save the PDF
+      pdf.save('AI_Engineering_Course_Curriculum.pdf');
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">AI Engineering - Course Curriculum</h2>
+            <p className="text-base text-gray-600 mt-2">8-Week Learning Plan</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-8 w-8 p-0 hover:bg-gray-100"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Curriculum Content */}
+        <div className="p-6">
+          <div className="space-y-3">
+            {curriculum.map((week) => (
+              <div key={week.week} className="border border-gray-200 rounded-lg overflow-hidden">
+                {/* Week Header - Clickable */}
+                <div 
+                  className="bg-white px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100"
+                  onClick={() => toggleWeek(week.week)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-2">
+                      {/* Row 1: Week Number - Now as plain text, not badge */}
+                                             <h4 className="text-theme-primary font-semibold text-lg">Week {week.week}</h4>
+                      
+                      {/* Row 2: Week Title */}
+                      <h3 className="font-medium text-gray-900 text-medium">{week.title}</h3>
+
+                    </div>
+                    
+                    {expandedWeeks.includes(week.week) ? (
+                      <ChevronUp className="h-5 w-5 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-gray-500" />
+                    )}
+                  </div>
+                </div>
+                
+                {/* Week Content - Expandable - Now as bullet points */}
+                {expandedWeeks.includes(week.week) && (
+                  <div className="bg-gray-50 px-4 py-4">
+                    <ul className="space-y-2">
+                      {week.content.map((item, index) => (
+                        <li key={index} className="text-sm text-gray-700 leading-relaxed flex items-start">
+                          <span className="text-theme-primary mr-2">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+          <Button 
+            variant="link" 
+            className="text-blue-600 hover:text-blue-700 p-0 h-auto text-base"
+            onClick={downloadCurriculumPDF}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download Curriculum PDF
+          </Button>
+                     <Button className="bg-theme-primary hover:bg-theme-primary-hover text-white px-8 py-3 text-base font-medium rounded-lg">
+            Enroll Now
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CourseCurriculumModal;

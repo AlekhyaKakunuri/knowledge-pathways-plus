@@ -6,51 +6,63 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Eye, BookOpen, Crown, Lock, Unlock, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ContentService, Blog } from "@/services/contentService";
-import { useSubscription } from "@/hooks/useSubscription";
+
+// Mock data for demonstration
+const mockBlogs = [
+  {
+    id: "1",
+    title: "Getting Started with React Development",
+    excerpt: "Learn the fundamentals of React development including components, state management, and hooks. This comprehensive guide will take you from beginner to intermediate level.",
+    content: "Learn the fundamentals of React development including components, state management, and hooks. This comprehensive guide will take you from beginner to intermediate level. React is a powerful JavaScript library for building user interfaces, particularly single-page applications. It's used for handling the view layer and can be used for developing both web and mobile applications. React allows developers to create large web applications that can change data, without reloading the page. Its main goal is to be fast, scalable, and simple. It works only on user interfaces in the application. This corresponds to the view in the MVC template. It can be used with a combination of other JavaScript libraries or frameworks, such as Angular JS in MVC. React was created by Jordan Walke, a software engineer at Facebook. It was first deployed on Facebook's News Feed in 2011 and later on Instagram in 2012. It was open-sourced at JSConf US in May 2013. React Native, which enables mobile application development with React, was released in March 2015. React was created by Jordan Walke, a software engineer at Facebook. It was first deployed on Facebook's News Feed in 2011 and later on Instagram in 2012. It was open-sourced at JSConf US in May 2013. React Native, which enables mobile application development with React, was released in March 2015.",
+    is_premium: false,
+    tags: ["React", "JavaScript", "Frontend"],
+    created_at: "2024-01-15"
+  },
+  {
+    id: "2",
+    title: "Advanced TypeScript Patterns",
+    excerpt: "Explore advanced TypeScript patterns and best practices for building scalable applications. Learn about generics, decorators, and advanced type manipulation.",
+    content: "Explore advanced TypeScript patterns and best practices for building scalable applications. Learn about generics, decorators, and advanced type manipulation. TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. TypeScript adds optional types to JavaScript that support tools for large-scale JavaScript applications for any browser, for any host, on any OS. TypeScript compiles to readable, standards-based JavaScript. TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. TypeScript adds optional types to JavaScript that support tools for large-scale JavaScript applications for any browser, for any host, on any OS. TypeScript compiles to readable, standards-based JavaScript.",
+    is_premium: true,
+    tags: ["TypeScript", "Advanced", "Programming"],
+    created_at: "2024-01-10"
+  },
+  {
+    id: "3",
+    title: "Building REST APIs with Node.js",
+    excerpt: "Master the art of building robust REST APIs using Node.js and Express. Learn about authentication, validation, and best practices for production deployment.",
+    content: "Master the art of building robust REST APIs using Node.js and Express. Learn about authentication, validation, and best practices for production deployment. Node.js is an open-source, cross-platform, back-end JavaScript runtime environment that runs on the V8 engine and executes JavaScript code outside a web browser. Node.js lets developers use JavaScript to write command line tools and for server-side scripting—running scripts server-side to produce dynamic web page content before the page is sent to the user's web browser. Consequently, Node.js represents a 'JavaScript everywhere' paradigm, unifying web-application development around a single programming language, rather than different languages for server-side and client-side scripts.",
+    is_premium: false,
+    tags: ["Node.js", "API", "Backend"],
+    created_at: "2024-01-05"
+  }
+];
 
 const BlogDetail = () => {
   const { id } = useParams();
-  const [blog, setBlog] = useState<Blog | null>(null);
-  const [relatedBlogs, setRelatedBlogs] = useState<Blog[]>([]);
+  const [blog, setBlog] = useState(mockBlogs[0]);
+  const [relatedBlogs, setRelatedBlogs] = useState(mockBlogs.slice(1));
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   
-  // Get subscription status
-  const { canAccessPremiumContent, loading: subscriptionLoading } = useSubscription();
+  // Mock subscription status - will be replaced with REST API integration
+  const canAccessPremiumContent = false;
 
   useEffect(() => {
     if (id) {
-      fetchBlog();
+      // Simulate loading delay
+      setTimeout(() => {
+        const foundBlog = mockBlogs.find(b => b.id === id) || mockBlogs[0];
+        setBlog(foundBlog);
+        setRelatedBlogs(mockBlogs.filter(b => b.id !== foundBlog.id));
+        setLoading(false);
+      }, 1000);
     }
   }, [id]);
 
-  const fetchBlog = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const blogData = await ContentService.getBlogById(id!);
-      if (!blogData) {
-        setError('Blog not found');
-        return;
-      }
-      
-      setBlog(blogData);
-      
-      // Fetch related blogs
-      const related = await ContentService.getRelatedBlogs(id!, blogData.tags || []);
-      setRelatedBlogs(related);
-    } catch (err) {
-      console.error('Error fetching blog:', err);
-      setError('Failed to load blog');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const getReadingTime = (content: string) => {
-    return ContentService.calculateReadingTime(content);
+    const wordsPerMinute = 200;
+    const words = content.split(' ').length;
+    return Math.ceil(words / wordsPerMinute);
   };
 
   const formatDate = (dateString: string) => {
@@ -82,7 +94,7 @@ const BlogDetail = () => {
         ),
         buttonText: "Read Full Article",
         buttonVariant: "default" as const,
-        linkPath: (id: string) => `/blog/${id}` // Premium users can access via regular blog route
+        linkPath: (id: string) => `/blog/${id}`
       };
     }
 
@@ -99,7 +111,7 @@ const BlogDetail = () => {
     };
   };
 
-  if (loading || subscriptionLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -116,7 +128,7 @@ const BlogDetail = () => {
     );
   }
 
-  if (error || !blog) {
+  if (!blog) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -124,7 +136,7 @@ const BlogDetail = () => {
           <div className="container">
             <div className="text-center py-20">
               <h1 className="text-2xl font-bold mb-4">Blog Not Found</h1>
-              <p className="text-muted-foreground mb-6">{error || 'The blog you are looking for does not exist.'}</p>
+              <p className="text-muted-foreground mb-6">The blog you are looking for does not exist.</p>
               <Button asChild>
                 <Link to="/blogs">Back to Blogs</Link>
               </Button>
@@ -224,7 +236,7 @@ const BlogDetail = () => {
                 <div className="bg-muted/20 rounded-lg p-6 border">
                   <h3 className="text-lg font-semibold mb-3">Content Preview</h3>
                   <div className="line-clamp-6 text-muted-foreground">
-                    {ContentService.getContentPreview(blog.content, 500)}
+                    {blog.content.substring(0, 500)}...
                   </div>
                   {blog.is_premium && !canAccessPremiumContent && (
                     <div className="mt-4 p-4 bg-gradient-to-r from-premium/10 to-accent/10 rounded-lg border border-premium/20">
@@ -263,7 +275,7 @@ const BlogDetail = () => {
                           
                           <CardContent className="pt-0">
                             <CardDescription className="line-clamp-2 mb-3">
-                              {ContentService.getContentPreview(relatedBlog.content, 100)}
+                              {relatedBlog.content.substring(0, 100)}...
                             </CardDescription>
                             <Button
                               variant={contentInfo.buttonVariant}

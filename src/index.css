@@ -26,6 +26,29 @@
   --radius: 0.5rem;
   --premium: 45 100% 51%;
   --premium-foreground: 0 0% 0%;
+  
+  /* New Theme Color - Medium Blue #0000CD */
+  --theme-blue: 240 100% 40%; /* #0000CD - Medium Blue */
+  --theme-blue-hover: 240 100% 30%; /* Darker shade for hover */
+  
+  /* Comprehensive Theme Color System */
+  --theme-primary: 240 100% 40%; /* #0000CD - Main theme color */
+  --theme-primary-hover: 240 100% 30%; /* Darker for hover */
+  --theme-primary-light: 240 100% 60%; /* Lighter shade */
+  --theme-primary-lighter: 240 100% 80%; /* Very light for backgrounds */
+  --theme-primary-dark: 240 100% 25%; /* Darker for text */
+  
+  /* Theme Color Variants */
+  --theme-text: 240 100% 40%; /* Text color */
+  --theme-text-hover: 240 100% 30%; /* Text hover */
+  --theme-border: 240 100% 40%; /* Border color */
+  --theme-border-focus: 240 100% 50%; /* Focus border */
+  --theme-bg: 240 100% 40%; /* Background color */
+  --theme-bg-hover: 240 100% 30%; /* Background hover */
+  --theme-bg-light: 240 100% 95%; /* Light background */
+  --theme-bg-lighter: 240 100% 98%; /* Very light background */
+  --theme-ring: 240 100% 50%; /* Focus ring */
+  --theme-accent: 240 100% 60%; /* Accent color */
 }
 
 .dark {
@@ -71,12 +94,108 @@
     background-clip: text;
   }
   
+  /* Comprehensive Theme Color Utility Classes */
+  /* Background Colors */
+  .bg-theme-primary {
+    background-color: hsl(var(--theme-primary));
+  }
+  .bg-theme-primary-hover {
+    background-color: hsl(var(--theme-primary-hover));
+  }
+  .bg-theme-primary-light {
+    background-color: hsl(var(--theme-primary-light));
+  }
+  .bg-theme-primary-lighter {
+    background-color: hsl(var(--theme-primary-lighter));
+  }
+  .bg-theme-bg-light {
+    background-color: hsl(var(--theme-bg-light));
+  }
+  .bg-theme-bg-lighter {
+    background-color: hsl(var(--theme-bg-lighter));
+  }
+  
+  /* Text Colors */
+  .text-theme-primary {
+    color: hsl(var(--theme-primary));
+  }
+  .text-theme-primary-hover {
+    color: hsl(var(--theme-primary-hover));
+  }
+  .text-theme-primary-light {
+    color: hsl(var(--theme-primary-light));
+  }
+  .text-theme-primary-dark {
+    color: hsl(var(--theme-primary-dark));
+  }
+  .text-theme-text {
+    color: hsl(var(--theme-text));
+  }
+  .text-theme-text-hover {
+    color: hsl(var(--theme-text-hover));
+  }
+  
+  /* Border Colors */
+  .border-theme-primary {
+    border-color: hsl(var(--theme-primary));
+  }
+  .border-theme-primary-hover {
+    border-color: hsl(var(--theme-primary-hover));
+  }
+  .border-theme-border {
+    border-color: hsl(var(--theme-border));
+  }
+  .border-theme-border-focus {
+    border-color: hsl(var(--theme-border-focus));
+  }
+  
+  /* Focus Ring */
+  .ring-theme-ring {
+    --tw-ring-color: hsl(var(--theme-ring));
+  }
+  
+  /* Hover States */
+  .hover\:bg-theme-primary-hover:hover {
+    background-color: hsl(var(--theme-primary-hover));
+  }
+  .hover\:text-theme-text-hover:hover {
+    color: hsl(var(--theme-text-hover));
+  }
+  .hover\:border-theme-primary-hover:hover {
+    border-color: hsl(var(--theme-primary-hover));
+  }
+  
+  /* Focus States */
+  .focus\:border-theme-border-focus:focus {
+    border-color: hsl(var(--theme-border-focus));
+  }
+  .focus\:ring-theme-ring:focus {
+    --tw-ring-color: hsl(var(--theme-ring));
+  }
+  
+  /* Legacy Theme Blue Classes (for backward compatibility) */
+  .bg-theme-blue {
+    background-color: hsl(var(--theme-blue));
+  }
+  .bg-theme-blue-hover {
+    background-color: hsl(var(--theme-blue-hover));
+  }
+  .hover\:bg-theme-blue-hover:hover {
+    background-color: hsl(var(--theme-blue-hover));
+  }
+  .text-theme-blue {
+    color: hsl(var(--theme-blue));
+  }
+  .border-theme-blue {
+    border-color: hsl(var(--theme-blue));
+  }
+  
   .shadow-soft {
     box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
   }
   
   .shadow-glow {
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 0 20px hsl(var(--theme-primary) / 0.3);
   }
   
   .shadow-3xl {

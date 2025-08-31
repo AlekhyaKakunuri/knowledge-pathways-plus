@@ -4,42 +4,111 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Clock, Eye, BookOpen, Video, Crown, Users, Loader2, TrendingUp, Star, Lock, Unlock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ContentService, Blog } from "@/services/contentService";
-import { useSubscription } from "@/hooks/useSubscription";
+
+// Mock data for demonstration - same as Course Page
+const mockBlogs = [
+  {
+    id: "1",
+    title: "Getting Started with React Development",
+    content: "Learn the fundamentals of React development including components, state management, and hooks. This comprehensive guide will take you from beginner to intermediate level.",
+    excerpt: "Learn the fundamentals of React development including components, state management, and hooks.",
+    is_premium: false,
+    tags: ["React", "JavaScript"],
+    created_at: "2024-01-15",
+    author: "John Doe"
+  },
+  {
+    id: "2",
+    title: "Advanced TypeScript Patterns",
+    content: "Explore advanced TypeScript patterns and best practices for building scalable applications. Learn about generics, decorators, and advanced type manipulation.",
+    excerpt: "Explore advanced TypeScript patterns and best practices for building scalable applications.",
+    is_premium: true,
+    tags: ["TypeScript", "Advanced"],
+    created_at: "2024-01-10",
+    author: "Jane Smith"
+  },
+  {
+    id: "3",
+    title: "Building REST APIs with Node.js",
+    content: "Master the art of building robust REST APIs using Node.js and Express. Learn about authentication, validation, and best practices for production deployment.",
+    excerpt: "Master the art of building robust REST APIs using Node.js and Express.",
+    is_premium: false,
+    tags: ["Node.js", "API"],
+    created_at: "2024-01-05",
+    author: "Mike Johnson"
+  }
+];
+
+// Updated course data to match Course Page exactly
+const mockCourses = [
+  {
+    id: "1",
+    title: "Data Structures & Algorithms",
+    description: "Master fundamental data structures and algorithms with hands-on coding challenges and real-world applications.",
+    duration: "12 weeks",
+    level: "Intermediate",
+    category: "Computer Science",
+    instructor: "John Smith",
+    instructorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    is_premium: true,
+    price: 299,
+    currentPrice: "299",
+    originalPrice: "499",
+    students_count: 1250,
+    rating: 4.8,
+    badge: "New",
+    badgeColor: "bg-theme-bg-light text-theme-primary"
+  },
+  {
+    id: "2",
+    title: "System Design",
+    description: "Learn to design scalable systems and architecture patterns used by top tech companies.",
+    duration: "10 weeks",
+    level: "Advanced",
+    category: "System Design",
+    instructor: "Sarah Johnson",
+    instructorAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+    is_premium: true,
+    price: 399,
+    currentPrice: "399",
+    originalPrice: "599",
+    students_count: 850,
+    rating: 4.9,
+    badge: "Most Popular",
+    badgeColor: "bg-blue-100 text-blue-800"
+  },
+  {
+    id: "3",
+    title: "Machine Learning",
+    description: "Introduction to machine learning concepts, algorithms, and practical applications using Python.",
+    duration: "16 weeks",
+    level: "Intermediate",
+    category: "AI & ML",
+    instructor: "Mike Chen",
+    instructorAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    is_premium: true,
+    price: 499,
+    currentPrice: "499",
+    originalPrice: "799",
+    students_count: 650,
+    rating: 4.7,
+    badge: "New",
+    badgeColor: "bg-theme-bg-light text-theme-primary"
+  }
+];
 
 const ContentPreview = () => {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalBlogs: 0,
-    totalCourses: 0,
-    freeBlogs: 0,
-    premiumBlogs: 0,
-    freeCourses: 0,
-    premiumCourses: 0
-  });
   
-  // Get subscription status
-  const { canAccessPremiumContent, loading: subscriptionLoading } = useSubscription();
+  // Mock subscription status - will be replaced with REST API integration
+  const canAccessPremiumContent = false; // This will come from your REST API
 
   useEffect(() => {
-    fetchFeaturedContent();
-  }, []);
-
-  const fetchFeaturedContent = async () => {
-    try {
-      setLoading(true);
-      const featuredContent = await ContentService.getFeaturedContent();
-      setBlogs(featuredContent.blogs);
-      setCourses(featuredContent.courses);
-      setStats(featuredContent.stats);
-    } catch (error) {
-      console.error('Error fetching featured content:', error);
-    } finally {
+    // Simulate loading delay
+    setTimeout(() => {
       setLoading(false);
-    }
-  };
+    }, 1000);
+  }, []);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -50,7 +119,9 @@ const ContentPreview = () => {
   };
 
   const getReadingTime = (content: string) => {
-    return ContentService.calculateReadingTime(content);
+    const wordsPerMinute = 200;
+    const words = content.split(' ').length;
+    return Math.ceil(words / wordsPerMinute);
   };
 
   // Helper function to get premium content display info
@@ -74,7 +145,7 @@ const ContentPreview = () => {
         ),
         buttonText: "Read Full Article",
         buttonVariant: "default" as const,
-        linkPath: (id: string) => `/blog/${id}` // Premium users can access via regular blog route
+        linkPath: (id: string) => `/blog/${id}`
       };
     }
 
@@ -128,11 +199,11 @@ const ContentPreview = () => {
       buttonText: "Unlock with Premium",
       buttonVariant: "premium" as const,
       linkPath: `/premium/course/${course.id}`,
-      priceDisplay: <span className="text-lg font-bold text-premium">₹{course.price}</span>
+      priceDisplay: <span className="text-lg font-bold text-premium">${course.price}</span>
     };
   };
 
-  if (loading || subscriptionLoading) {
+  if (loading) {
     return (
       <section className="py-20 bg-gradient-card">
         <div className="container">
@@ -153,6 +224,15 @@ const ContentPreview = () => {
       </section>
     );
   }
+
+  const stats = {
+    totalBlogs: mockBlogs.length,
+    totalCourses: mockCourses.length,
+    freeBlogs: mockBlogs.filter(b => !b.is_premium).length,
+    premiumBlogs: mockBlogs.filter(b => b.is_premium).length,
+    freeCourses: mockCourses.filter(c => !c.is_premium).length,
+    premiumCourses: mockCourses.filter(c => c.is_premium).length
+  };
 
   return (
     <section className="py-20 bg-gradient-card">
@@ -194,73 +274,74 @@ const ContentPreview = () => {
               <BookOpen className="h-6 w-6 text-primary" />
               <h3 className="text-2xl font-bold">Latest Blog Posts</h3>
               <Badge variant="secondary" className="ml-2">
-                {blogs.length} articles
+                {mockBlogs.length} articles
               </Badge>
             </div>
-            <Button variant="outline" asChild>
-              <Link to="/blogs">View All Blogs</Link>
-            </Button>
+            {/* View All Button */}
+            <div className="text-center mt-8">
+              <Link 
+                to="/blogs"
+                                 className="inline-flex items-center justify-center px-6 py-3 bg-theme-primary text-white font-medium rounded-lg hover:bg-theme-primary-hover transition-colors"
+              >
+                View All Blogs
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
           </div>
 
-          {blogs.length === 0 ? (
-            <div className="text-center py-12">
-              <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No blogs available</h3>
-              <p className="text-muted-foreground">Check back soon for new content!</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {blogs.map((post) => {
-                const contentInfo = getPremiumContentInfo(post.is_premium);
-                return (
-                  <Card key={post.id} className="group hover:shadow-soft transition-all duration-300 bg-gradient-card border-0">
-                    <CardHeader className="space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex gap-2">
-                          {post.tags?.slice(0, 2).map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        {contentInfo.badge}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mockBlogs.map((post) => {
+              const contentInfo = getPremiumContentInfo(post.is_premium);
+              return (
+                <Card key={post.id} className="group hover:shadow-soft transition-all duration-300 bg-gradient-card border-0">
+                  <CardHeader className="space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex gap-2">
+                        {post.tags?.slice(0, 2).map((tag, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
                       </div>
-                      <CardTitle className="group-hover:text-primary transition-colors">
-                        {post.title}
-                      </CardTitle>
-                      <CardDescription className="line-clamp-3">
-                        {ContentService.getContentPreview(post.content, 120)}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {getReadingTime(post.content)} min read
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <BookOpen className="h-4 w-4" />
-                            {formatDate(post.created_at)}
-                          </div>
+                      {contentInfo.badge}
+                    </div>
+                    <CardTitle className="group-hover:text-primary transition-colors">
+                      {post.title}
+                    </CardTitle>
+                    <CardDescription className="line-clamp-3">
+                      {post.excerpt}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          {getReadingTime(post.content)} min read
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <BookOpen className="h-4 w-4" />
+                          {formatDate(post.created_at)}
                         </div>
                       </div>
-                      <Button 
-                        variant={contentInfo.buttonVariant}
-                        className="w-full"
-                        size="sm"
-                        asChild
-                      >
-                        <Link to={contentInfo.linkPath(post.id)}>
-                          {contentInfo.buttonText}
-                        </Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
+                    </div>
+                    <Button 
+                      variant={contentInfo.buttonVariant}
+                      className="w-full"
+                      size="sm"
+                      asChild
+                    >
+                      <Link to={contentInfo.linkPath(post.id)}>
+                        {contentInfo.buttonText}
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
 
         {/* Video Courses Section */}
@@ -270,7 +351,7 @@ const ContentPreview = () => {
               <Video className="h-6 w-6 text-accent" />
               <h3 className="text-2xl font-bold">Featured Video Courses</h3>
               <Badge variant="secondary" className="ml-2">
-                {courses.length} courses
+                {mockCourses.length} courses
               </Badge>
             </div>
             <Button variant="accent" asChild>
@@ -278,75 +359,58 @@ const ContentPreview = () => {
             </Button>
           </div>
 
-          {courses.length === 0 ? (
-            <div className="text-center py-12">
-              <Video className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No courses available</h3>
-              <p className="text-muted-foreground">Check back soon for new content!</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course: any) => {
-                const courseInfo = getCourseDisplayInfo(course);
-                return (
-                  <Card key={course.id} className="group hover:shadow-soft transition-all duration-300 bg-gradient-card border-0">
-                    <CardHeader className="space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex gap-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {course.category}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {course.level}
-                          </Badge>
-                        </div>
-                        {courseInfo.badge}
-                      </div>
-                      <CardTitle className="group-hover:text-accent transition-colors">
-                        {course.title}
-                      </CardTitle>
-                      <CardDescription className="line-clamp-3">
-                        {ContentService.getContentPreview(course.description, 120)}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {course.duration}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            {course.students_count} students
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="text-sm font-medium">{course.rating}</span>
-                        </div>
-                        {courseInfo.priceDisplay}
-                      </div>
-                      
-                      <Button 
-                        variant={courseInfo.buttonVariant}
-                        className="w-full"
-                        size="sm"
-                        asChild
-                      >
-                        <Link to={courseInfo.linkPath}>
-                          {courseInfo.buttonText}
-                        </Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mockCourses.map((course: any) => {
+              const courseInfo = getCourseDisplayInfo(course);
+              return (
+                <Card key={course.id} className="group hover:shadow-lg transition-all duration-300 bg-gradient-card border-0">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <Badge className={course.badgeColor}>
+                        {course.badge}
+                      </Badge>
+                      {courseInfo.badge}
+                    </div>
+                    <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-theme-primary transition-colors">
+                      {course.title}
+                    </CardTitle>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Clock className="h-4 w-4" />
+                      {course.duration}
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={course.instructorAvatar}
+                        alt={course.instructor}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <span className="text-sm font-medium text-gray-700">{course.instructor}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                                             <span className="text-2xl font-bold text-theme-primary">${course.currentPrice}</span>
+                      <span className="text-lg text-gray-500 line-through">${course.originalPrice}</span>
+                    </div>
+                    
+                    <Button 
+                      variant={courseInfo.buttonVariant}
+                      className="w-full"
+                      size="sm"
+                      asChild
+                    >
+                      <Link to={courseInfo.linkPath}>
+                        {courseInfo.buttonText}
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
 
         {/* Call to Action */}

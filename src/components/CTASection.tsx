@@ -2,13 +2,13 @@ import { Button } from "@/components/ui/button";
 
 const CTASection = () => {
   return (
-    <section className="py-16 lg:py-20 bg-gradient-to-r from-blue-600 to-purple-600 px-4">
+    <section className="py-8 md:py-12 lg:py-16 bg-gradient-to-r from-blue-600 to-purple-600 px-4">
       <div className="container text-center">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-6 lg:mb-8">
+        <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-4 md:mb-6">
           Start your career journey today - Join us now!
         </h2>
-        <Button className="bg-white text-blue-600 hover:bg-gray-100 px-6 sm:px-8 py-3 text-base lg:text-lg font-semibold">
-          Get Started
+        <Button className="bg-white text-theme-primary hover:bg-theme-bg-light px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-semibold">
+          Learn More
         </Button>
       </div>
     </section>

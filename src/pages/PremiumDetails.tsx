@@ -3,51 +3,72 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Eye, BookOpen, Crown, ArrowLeft, Star, Users, Play, CheckCircle, Lock, Loader2 } from "lucide-react";
+import { Clock, Eye, BookOpen, Crown, ArrowLeft, Star, Users, Play, CheckCircle, Lock, Loader2, Download } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import UPIPayment from "@/components/UPIPayment";
-import { useSubscription } from "@/hooks/useSubscription";
-import { ContentService, Blog, Course } from "@/services/contentService";
+
+// Mock data for demonstration
+const mockContent = {
+  blog: {
+    id: "1",
+    title: "Advanced TypeScript Patterns",
+    excerpt: "Explore advanced TypeScript patterns and best practices for building scalable applications. Learn about generics, decorators, and advanced type manipulation.",
+    content: "Explore advanced TypeScript patterns and best practices for building scalable applications. Learn about generics, decorators, and advanced type manipulation. TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. TypeScript adds optional types to JavaScript that support tools for large-scale JavaScript applications for any browser, for any host, on any OS. TypeScript compiles to readable, standards-based JavaScript.",
+    is_premium: true,
+    tags: ["TypeScript", "Advanced", "Programming"],
+    created_at: "2024-01-10",
+    author: "Jane Smith"
+  },
+  course: {
+    id: "2",
+    title: "AI Technologies",
+    description: "Master artificial intelligence, machine learning, and deep learning. This advanced course covers cutting-edge AI technologies, neural networks, and practical applications in real-world scenarios.",
+    duration: "12 weeks",
+    students: "3.8k",
+    category: "AI/ML",
+    level: "Advanced",
+    instructor: "Dr. Michael Chen",
+    is_premium: true,
+    price: 2999
+  }
+};
 
 const PremiumDetails = () => {
   const { type, id } = useParams();
   const navigate = useNavigate();
   const [openUPI, setOpenUPI] = useState(false);
-  const [content, setContent] = useState<Blog | Course | null>(null);
+  const [content, setContent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { canAccessPremiumContent, loading: subscriptionLoading, refreshSubscription } = useSubscription();
+  
+  // Mock subscription status - will be replaced with REST API integration
+  const canAccessPremiumContent = false;
 
-  // Fetch content from database
+  // Fetch content from mock data
   useEffect(() => {
-    const fetchContent = async () => {
+    const fetchContent = () => {
       if (!id) return;
 
-      try {
-        setLoading(true);
-        setError(null);
-
-        let contentData: Blog | Course | null = null;
+      setLoading(true);
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        let contentData: any = null;
         
         if (type === 'blog') {
-          contentData = await ContentService.getBlogById(id);
+          contentData = mockContent.blog;
         } else if (type === 'course') {
-          contentData = await ContentService.getCourseById(id);
+          contentData = mockContent.course;
         }
 
         if (!contentData) {
-          setError('Content not found');
+          setLoading(false);
           return;
         }
 
         setContent(contentData);
-      } catch (err) {
-        console.error('Error fetching content:', err);
-        setError('Failed to load content');
-      } finally {
         setLoading(false);
-      }
+      }, 1000);
     };
 
     fetchContent();
@@ -59,10 +80,6 @@ const PremiumDetails = () => {
 
   const handleCloseUPI = () => {
     setOpenUPI(false);
-    // Refresh subscription status after payment submission
-    setTimeout(() => {
-      refreshSubscription();
-    }, 1000);
   };
 
   const handleReadArticle = () => {
@@ -92,19 +109,15 @@ const PremiumDetails = () => {
   }
 
   // Show error state
-  if (error || !content) {
+  if (!content) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <main className="pt-20">
           <div className="container text-center py-20">
-            <div className="text-red-500 text-6xl mb-4">⚠️</div>
-            <h1 className="text-2xl font-bold mb-2">Content Not Found</h1>
-            <p className="text-muted-foreground mb-6">{error || 'The requested content could not be loaded.'}</p>
-            <Button onClick={() => navigate(-1)} variant="outline">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Go Back
-            </Button>
+            <h1 className="text-2xl font-bold mb-4">Content Not Found</h1>
+            <p className="text-muted-foreground mb-6">The content you are looking for does not exist.</p>
+            <Button onClick={() => navigate(-1)}>Go Back</Button>
           </div>
         </main>
         <Footer />
@@ -112,259 +125,253 @@ const PremiumDetails = () => {
     );
   }
 
-  // Show loading state while checking subscription
-  if (subscriptionLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="pt-20">
-          <div className="container text-center py-20">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-muted-foreground">Checking subscription status...</p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  // Check if content is premium
-  const isPremiumContent = 'is_premium' in content ? content.is_premium : false;
-
-  // If content is not premium, redirect to regular content page
-  if (!isPremiumContent) {
-    navigate(`/${type === 'blog' ? 'blog' : 'course'}/${id}`);
-    return null;
-  }
+  const isBlog = type === 'blog';
+  const isCourse = type === 'course';
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
       <main className="pt-20">
-        {/* Back Navigation */}
-        <section className="bg-gradient-to-r from-background to-secondary/20 py-6">
-          <div className="container">
-            <Button
-              variant="ghost"
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-muted-foreground hover:text-primary"
-            >
+        <div className="container">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back to {type === 'blog' ? 'Blogs' : 'Courses'}
+              Go Back
             </Button>
           </div>
-        </section>
 
-        {/* Content Header */}
-        <section className="py-12">
-          <div className="container">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex gap-2">
-                  <Badge variant="secondary" className="text-sm">
-                    {type === 'blog' ? (content as Blog).tags?.[0] || 'General' : (content as Course).category}
-                  </Badge>
-                  {type === 'course' && (
-                    <Badge variant="outline" className="text-sm">
-                      {(content as Course).level}
-                    </Badge>
-                  )}
-                </div>
-                
-                {/* Show appropriate badge based on subscription status */}
-                {canAccessPremiumContent ? (
-                  <Badge className="bg-green-100 text-green-800 border-green-200">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Unlocked
-                  </Badge>
-                ) : (
-                  <Badge className="bg-gradient-premium text-premium-foreground">
-                    <Lock className="h-3 w-3 mr-1" />
-                    Premium
-                  </Badge>
-                )}
+          {/* Content Header */}
+          <div className="max-w-4xl mx-auto mb-12">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Badge className="bg-gradient-premium text-premium-foreground">
+                  <Crown className="h-4 w-4 mr-1" />
+                  Premium Content
+                </Badge>
+                <Badge variant="secondary">
+                  {isBlog ? 'Blog Article' : 'Video Course'}
+                </Badge>
               </div>
 
-              <h1 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
+              <h1 className="text-3xl lg:text-4xl font-bold mb-4">
                 {content.title}
               </h1>
-              
-              <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                {type === 'blog' ? (content as Blog).excerpt || (content as Blog).content.substring(0, 200) + '...' : (content as Course).description}
-              </p>
 
-              <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-8">
-                {type === 'blog' ? (
+              {isBlog && content.excerpt && (
+                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                  {content.excerpt}
+                </p>
+              )}
+
+              {isCourse && (
+                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                  {content.description}
+                </p>
+              )}
+
+              {/* Content Stats */}
+              <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mb-6">
+                {isBlog && (
                   <>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      {Math.ceil((content as Blog).content.length / 200)} min read
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Eye className="h-4 w-4" />
-                      New
+                      8 min read
                     </div>
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4" />
-                      {new Date((content as Blog).created_at).toLocaleDateString()}
+                      {new Date(content.created_at).toLocaleDateString()}
                     </div>
                   </>
-                ) : (
+                )}
+                
+                {isCourse && (
                   <>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      {(content as Course).duration}
+                      {content.duration}
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4" />
-                      {(content as Course).students_count} students
+                      {content.students} students
                     </div>
                     <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4" />
-                      {(content as Course).rating}/5 rating
+                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                      4.8 (1.2k reviews)
                     </div>
                   </>
                 )}
               </div>
 
-              {/* Author/Instructor Info */}
-              <div className="flex items-center gap-4 mb-8 p-4 bg-gradient-card rounded-lg border-0">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center">
-                  <BookOpen className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    {type === 'blog' ? 'Author' : 'Instructor'}
-                  </p>
-                  <p className="font-semibold">
-                    {type === 'blog' ? 'Content Creator' : (content as Course).instructor}
-                  </p>
-                </div>
+              {/* Action Buttons */}
+              <div className="flex gap-4 justify-center">
+                {canAccessPremiumContent ? (
+                  <Button size="lg" onClick={handleReadArticle}>
+                    {isBlog ? (
+                      <>
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        Read Full Article
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2" />
+                        Start Course
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button size="lg" onClick={handleSubscribe}>
+                    <Crown className="h-4 w-4 mr-2" />
+                    Unlock with Premium
+                  </Button>
+                )}
+                
+                <Button variant="outline" size="lg" onClick={() => navigate('/pricing')}>
+                  <Crown className="h-4 w-4 mr-2" />
+                  View Pricing Plans
+                </Button>
               </div>
-
-              {/* Subscription Status Check */}
-              {canAccessPremiumContent ? (
-                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 mb-8">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-green-700">
-                      <CheckCircle className="h-5 w-5" />
-                      Premium Access Granted
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-green-700 mb-4">
-                      🎉 You have an active premium subscription! You can now access this content.
-                    </p>
-                    <Button 
-                      onClick={handleReadArticle}
-                      variant="default" 
-                      size="lg"
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <Play className="h-4 w-4 mr-2" />
-                      {type === 'blog' ? 'Read Full Article' : 'Start Course'}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <>
-                  {/* Premium Content Preview */}
-                  <Card className="bg-gradient-to-br from-premium/5 to-accent/5 border-premium/20 mb-8">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-premium">
-                        <Crown className="h-5 w-5" />
-                        Premium Content Preview
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {type === 'blog' ? (
-                        <div className="space-y-4">
-                          <p className="text-muted-foreground">
-                            This premium blog post contains advanced concepts and detailed explanations that will help you master your skills.
-                          </p>
-                          <div className="space-y-2">
-                            <p className="font-medium">What you'll learn:</p>
-                            <ul className="space-y-1 text-sm text-muted-foreground">
-                              {(content as Blog).tags?.slice(0, 4).map((tag, index) => (
-                                <li key={index} className="flex items-center gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-premium"></div>
-                                  {tag}
-                                </li>
-                              )) || (
-                                <li className="flex items-center gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-premium"></div>
-                                  Advanced concepts and techniques
-                                </li>
-                              )}
-                            </ul>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <p className="text-muted-foreground">
-                            This comprehensive course includes hands-on projects, downloadable resources, and lifetime access to all content.
-                          </p>
-                          <div className="space-y-2">
-                            <p className="font-medium">Course modules:</p>
-                            <ul className="space-y-1 text-sm text-muted-foreground">
-                              {(content as Course).modules?.slice(0, 4).map((module, index) => (
-                                <li key={index} className="flex items-center gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-premium"></div>
-                                  {module}
-                                </li>
-                              )) || (
-                                <li className="flex items-center gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-premium"></div>
-                                  Comprehensive learning modules
-                                </li>
-                              )}
-                            </ul>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Subscribe Button */}
-                  <div className="text-center">
-                    <Button
-                      onClick={handleSubscribe}
-                      size="lg"
-                      className="bg-gradient-premium hover:bg-gradient-premium/90 text-premium-foreground px-8 py-3 text-lg"
-                    >
-                      <Crown className="h-5 w-5 mr-2" />
-                      Subscribe to Access Premium Content
-                    </Button>
-                    <p className="text-sm text-muted-foreground mt-3">
-                      Get access to all premium content with a monthly subscription
-                    </p>
-                  </div>
-                </>
-              )}
             </div>
           </div>
-        </section>
-      </main>
 
-      <Footer />
+          {/* Content Preview */}
+          <div className="max-w-4xl mx-auto mb-12">
+            <Card className="bg-gradient-to-r from-premium/5 to-accent/5 border-premium/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  Content Preview
+                </CardTitle>
+                <CardDescription>
+                  Here's a preview of what you'll get with premium access
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isBlog && (
+                  <div className="prose prose-lg max-w-none">
+                    <div className="line-clamp-6 text-muted-foreground mb-4">
+                      {content.content}
+                    </div>
+                    <div className="p-4 bg-gradient-to-r from-premium/10 to-accent/10 rounded-lg border border-premium/20">
+                      <p className="text-sm text-premium font-medium">
+                        🔒 This is premium content. Subscribe to unlock the full article and access all premium features.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {isCourse && (
+                  <div className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                      <div className="p-4 bg-background rounded-lg border">
+                        <h4 className="font-semibold mb-2">Course Overview</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Master {content.category} with {content.duration} of comprehensive content
+                        </p>
+                      </div>
+                      <div className="p-4 bg-background rounded-lg border">
+                        <h4 className="font-semibold mb-2">Instructor</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Learn from {content.instructor}, an expert in {content.category}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-gradient-to-r from-premium/10 to-accent/10 rounded-lg border border-premium/20">
+                      <p className="text-sm text-premium font-medium">
+                        🔒 This is a premium course. Subscribe to unlock full access to all video lessons, downloadable resources, and community support.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Premium Benefits */}
+          <div className="max-w-4xl mx-auto mb-12">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-4">Why Choose Premium?</h2>
+              <p className="text-muted-foreground">
+                Get unlimited access to all premium content and exclusive features
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="text-center">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Crown className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg">Premium Content</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Access to all premium blogs, courses, and exclusive content
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Download className="h-6 w-6 text-accent" />
+                  </div>
+                  <CardTitle className="text-lg">Downloadable Resources</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Download course materials, code samples, and reference guides
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="h-6 w-6 text-green-600" />
+                  </div>
+                  <CardTitle className="text-lg">Community Access</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Join our premium community for networking and support
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-2xl p-8">
+              <Crown className="h-16 w-16 text-primary mx-auto mb-6" />
+              <h2 className="text-2xl font-bold mb-4">Ready to Unlock Premium?</h2>
+              <p className="text-muted-foreground mb-6">
+                Start your premium journey today and get unlimited access to all our content
+              </p>
+              <Button size="lg" onClick={handleSubscribe}>
+                <Crown className="h-4 w-4 mr-2" />
+                Subscribe Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      </main>
 
       {/* UPI Payment Modal */}
       <UPIPayment
         selectedPlan={{
-          name: "Premium",
-          price: type === 'course' ? String((content as Course).price) : "19",
-          description: `Access to premium ${type === 'blog' ? 'blog posts' : 'video courses'}`,
-          features: [
-            "All premium content",
-            "Downloadable resources",
-            "Priority support",
-            "Progress tracking"
-          ]
+          name: "Premium Plan",
+          price: "999",
+          description: "Unlock all premium content and features",
+          features: ["All premium blogs", "All premium courses", "Downloadable resources", "Community access"]
         }}
         isOpen={openUPI}
         onClose={handleCloseUPI}
       />
+
+      <Footer />
     </div>
   );
 };

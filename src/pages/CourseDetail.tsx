@@ -5,17 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Video, ArrowLeft, Star, Play, BookOpen, Lock, Crown, CheckCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useSubscription } from "@/hooks/useSubscription";
 import { useState, useEffect } from "react";
 
 const CourseDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { canAccessPremiumContent, loading: subscriptionLoading } = useSubscription();
+  // Mock subscription status - will be replaced with REST API integration
+  const canAccessPremiumContent = false;
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Mock course data based on ID - replace with actual data from Supabase
+  // Mock course data based on ID - replace with actual data from REST API
   useEffect(() => {
     const fetchCourseData = () => {
       setLoading(true);
@@ -100,66 +100,119 @@ const CourseDetail = () => {
             {
               title: "Introduction to AI",
               duration: "3 hours",
-              topics: ["What is Artificial Intelligence", "AI vs ML vs DL", "AI applications in industry"],
+              topics: ["What is Artificial Intelligence", "AI vs ML vs DL", "AI applications in real world"],
               isLocked: false
             },
             {
               title: "Machine Learning Fundamentals",
               duration: "6 hours",
-              topics: ["Supervised vs Unsupervised Learning", "Linear Regression", "Classification Algorithms"],
-              isLocked: !canAccessPremiumContent
+              topics: ["Supervised vs Unsupervised Learning", "Linear Regression", "Classification algorithms"],
+              isLocked: false
             },
             {
               title: "Deep Learning Basics",
               duration: "8 hours",
-              topics: ["Neural Networks", "Backpropagation", "Activation Functions"],
-              isLocked: !canAccessPremiumContent
+              topics: ["Neural Networks", "Backpropagation", "Activation functions"],
+              isLocked: false
             },
             {
               title: "Advanced Neural Networks",
               duration: "10 hours",
               topics: ["CNN for Computer Vision", "RNN for NLP", "Transformers"],
-              isLocked: !canAccessPremiumContent
+              isLocked: false
             },
             {
               title: "AI Project Implementation",
               duration: "5 hours",
-              topics: ["Model Deployment", "API Development", "Production Considerations"],
-              isLocked: !canAccessPremiumContent
+              topics: ["Building an AI chatbot", "Image recognition system", "Deploying AI models"],
+              isLocked: false
             }
           ],
           requirements: [
             "Strong programming fundamentals",
             "Basic mathematics and statistics",
-            "Understanding of data structures",
+            "Understanding of linear algebra",
             "Python programming experience"
           ],
           whatYouWillLearn: [
-            "Build and train machine learning models",
-            "Implement deep learning algorithms",
-            "Work with neural networks",
-            "Deploy AI models in production",
-            "Solve real-world AI problems"
+            "Implement machine learning algorithms",
+            "Build and train neural networks",
+            "Work with deep learning frameworks",
+            "Create real-world AI applications",
+            "Deploy AI models to production"
+          ]
+        });
+      } else {
+        // Default course
+        setCourse({
+          id: 3,
+          title: "Web Development Fundamentals",
+          description: "Learn the basics of web development including HTML, CSS, and JavaScript. Build responsive websites and understand modern web development practices.",
+          duration: "6 weeks",
+          students: "2.1k",
+          category: "Web Development",
+          level: "Beginner",
+          instructor: "Sarah Johnson",
+          instructorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+          isPremium: false,
+          currentPrice: "Free",
+          originalPrice: null,
+          modules: [
+            {
+              title: "HTML Basics",
+              duration: "2 hours",
+              topics: ["HTML structure", "Semantic elements", "Forms and inputs"],
+              isLocked: false
+            },
+            {
+              title: "CSS Styling",
+              duration: "3 hours",
+              topics: ["CSS selectors", "Layout and positioning", "Responsive design"],
+              isLocked: false
+            },
+            {
+              title: "JavaScript Fundamentals",
+              duration: "4 hours",
+              topics: ["Variables and functions", "DOM manipulation", "Event handling"],
+              isLocked: false
+            }
+          ],
+          requirements: [
+            "Basic computer skills",
+            "Text editor (VS Code recommended)",
+            "Web browser"
+          ],
+          whatYouWillLearn: [
+            "Create responsive websites",
+            "Write clean HTML and CSS",
+            "Add interactivity with JavaScript",
+            "Understand web development workflow",
+            "Deploy websites online"
           ]
         });
       }
       
-      setLoading(false);
+      // Simulate loading delay
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     };
 
     fetchCourseData();
-  }, [id, canAccessPremiumContent]);
+  }, [id]);
 
-  if (loading || subscriptionLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="pt-20 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>Loading course...</p>
+        <main className="pt-20">
+          <div className="container">
+            <div className="text-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading course...</p>
+            </div>
           </div>
-        </div>
+        </main>
         <Footer />
       </div>
     );
@@ -169,247 +222,230 @@ const CourseDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="pt-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">Course Not Found</h1>
-          <Button onClick={() => navigate('/courses')}>Back to Courses</Button>
-        </div>
+        <main className="pt-20">
+          <div className="container">
+            <div className="text-center py-20">
+              <h1 className="text-2xl font-bold mb-4">Course Not Found</h1>
+              <p className="text-muted-foreground mb-6">The course you are looking for does not exist.</p>
+              <Button onClick={() => navigate('/courses')}>Back to Courses</Button>
+            </div>
+          </div>
+        </main>
         <Footer />
       </div>
     );
   }
 
-  const isPremiumCourse = course.isPremium;
-  const canAccessContent = !isPremiumCourse || canAccessPremiumContent;
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
       <main className="pt-20">
-        {/* Back Navigation */}
-        <section className="bg-gradient-to-r from-background to-secondary/20 py-6">
-          <div className="container">
-            <Button
-              variant="ghost"
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-muted-foreground hover:text-primary"
-            >
+        <div className="container">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Button variant="ghost" onClick={() => navigate('/courses')} className="gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Courses
             </Button>
           </div>
-        </section>
 
-        {/* Course Header */}
-        <section className="py-12">
-          <div className="container">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-start justify-between mb-6">
+          {/* Course Header */}
+          <div className="grid lg:grid-cols-3 gap-8 mb-12">
+            {/* Course Info */}
+            <div className="lg:col-span-2">
+              <div className="flex items-start gap-4 mb-6">
                 <div className="flex gap-2">
-                  <Badge variant="secondary" className="text-sm">
-                    {course.category}
-                  </Badge>
-                  <Badge variant="outline" className="text-sm">
-                    {course.level}
-                  </Badge>
-                </div>
-                <div className="flex gap-2">
-                  {isPremiumCourse && (
-                    <Badge className="bg-yellow-500 text-white">
+                  <Badge variant="secondary">{course.category}</Badge>
+                  <Badge variant="outline">{course.level}</Badge>
+                  {course.isPremium && (
+                    <Badge className="bg-gradient-premium text-premium-foreground">
                       <Crown className="h-3 w-3 mr-1" />
                       Premium
                     </Badge>
                   )}
-                  <Badge className={isPremiumCourse ? "bg-blue-600 text-white" : "bg-green-600 text-white"}>
-                    <BookOpen className="h-3 w-3 mr-1" />
-                    {isPremiumCourse ? "Premium Course" : "Free Course"}
-                  </Badge>
                 </div>
               </div>
 
-              <h1 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
-                {course.title}
-              </h1>
-              
+              <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                 {course.description}
               </p>
 
-              <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-8">
+              {/* Course Stats */}
+              <div className="flex items-center gap-6 text-sm text-muted-foreground mb-6">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   {course.duration}
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
-                  {course.students} students
+                  {course.students} students enrolled
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4" />
-                  4.8/5 rating
+                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                  4.8 (2.1k reviews)
                 </div>
               </div>
 
-              {/* Instructor Info */}
-              <div className="flex items-center gap-4 mb-8 p-4 bg-gradient-card rounded-lg border-0">
+              {/* Instructor */}
+              <div className="flex items-center gap-3 mb-6">
                 <img
                   src={course.instructorAvatar}
                   alt={course.instructor}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-12 h-12 rounded-full"
                 />
                 <div>
-                  <p className="text-sm text-muted-foreground">Instructor</p>
-                  <p className="font-semibold">{course.instructor}</p>
+                  <p className="font-medium">Created by {course.instructor}</p>
+                  <p className="text-sm text-muted-foreground">Expert Instructor</p>
                 </div>
               </div>
+            </div>
 
-              {/* Course Modules */}
-              <Card className="mb-8">
+            {/* Course Card */}
+            <div className="lg:col-span-1">
+              <Card className="sticky top-24">
+                <CardHeader className="text-center">
+                  <div className="text-3xl font-bold text-primary mb-2">
+                    {course.currentPrice}
+                  </div>
+                  {course.originalPrice && (
+                    <div className="text-lg text-muted-foreground line-through">
+                      {course.originalPrice}
+                    </div>
+                  )}
+                  <Badge variant="secondary" className="w-full">
+                    {course.isPremium ? 'Premium Course' : 'Free Course'}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button className="w-full" size="lg">
+                    <Play className="h-4 w-4 mr-2" />
+                    {course.isPremium && !canAccessPremiumContent ? 'Unlock with Premium' : 'Start Learning'}
+                  </Button>
+                  
+                  {course.isPremium && !canAccessPremiumContent && (
+                    <Button variant="outline" className="w-full" size="lg">
+                      <Crown className="h-4 w-4 mr-2" />
+                      View Premium Plans
+                    </Button>
+                  )}
+
+                  <div className="text-center text-sm text-muted-foreground">
+                    <p>✓ Full lifetime access</p>
+                    <p>✓ Access on mobile and TV</p>
+                    <p>✓ Certificate of completion</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Course Content */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* What You'll Learn */}
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Video className="h-5 w-5" />
-                    Course Curriculum
-                  </CardTitle>
-                  <CardDescription>
-                    {course.modules.length} modules • {course.duration} total duration
-                  </CardDescription>
+                  <CardTitle>What you'll learn</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {course.modules.map((module: any, index: number) => (
-                      <div key={index} className={`flex items-start gap-4 p-3 rounded-lg transition-colors ${
-                        module.isLocked ? 'bg-muted/30 opacity-60' : 'hover:bg-muted/50'
-                      }`}>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
-                          module.isLocked 
-                            ? 'bg-muted text-muted-foreground' 
-                            : 'bg-primary/10 text-primary'
-                        }`}>
-                          {module.isLocked ? <Lock className="h-4 w-4" /> : index + 1}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium">{module.title}</h4>
-                            {module.isLocked && (
-                              <Badge variant="outline" className="text-xs">
-                                <Lock className="h-2 w-2 mr-1" />
-                                Premium
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">{module.duration}</p>
-                          <div className="flex flex-wrap gap-1">
-                            {module.topics.map((topic: string, topicIndex: number) => (
-                              <Badge key={topicIndex} variant="secondary" className="text-xs">
-                                {topic}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {course.whatYouWillLearn.map((item: string, index: number) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm">{item}</span>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Requirements and What You'll Learn */}
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Requirements</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {course.requirements.map((req: string, index: number) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                          <span className="text-sm">{req}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">What You'll Learn</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {course.whatYouWillLearn.map((item: string, index: number) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0"></div>
-                          <span className="text-sm">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Course Action Buttons */}
-              <div className="text-center">
-                {canAccessContent ? (
-                  // User can access the course content
-                  <div className="space-y-4">
-                    <Button
-                      size="lg"
-                      className="bg-gradient-accent hover:bg-gradient-accent/90 text-accent-foreground px-8 py-3 text-lg"
-                    >
-                      <Play className="h-5 w-5 mr-2" />
-                      {isPremiumCourse ? 'Continue Learning' : 'Start Learning for Free'}
-                    </Button>
-                    {isPremiumCourse && (
-                      <div className="flex items-center justify-center gap-2 text-sm text-green-600">
-                        <CheckCircle className="h-4 w-4" />
-                        Premium access granted
-                      </div>
-                    )}
-                    <p className="text-sm text-muted-foreground mt-3">
-                      {isPremiumCourse 
-                        ? 'Full course access • All modules unlocked' 
-                        : 'No credit card required • Start learning immediately'
-                      }
-                    </p>
-                  </div>
-                ) : (
-                  // User needs subscription to access premium content
-                  <div className="space-y-4">
-                    <div className="bg-muted/50 p-6 rounded-lg border-2 border-dashed border-muted-foreground/30">
-                      <div className="flex items-center justify-center gap-3 mb-4">
-                        <Lock className="h-8 w-8 text-muted-foreground" />
-                        <h3 className="text-lg font-semibold">Premium Content Locked</h3>
-                      </div>
-                      <p className="text-muted-foreground mb-4">
-                        Subscribe to our premium plan to unlock this course and access all premium content.
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Button
-                          size="lg"
-                          className="bg-gradient-accent hover:bg-gradient-accent/90 text-accent-foreground px-6 py-2"
-                          onClick={() => navigate('/pricing')}
-                        >
-                          <Crown className="h-4 w-4 mr-2" />
-                          View Pricing Plans
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="lg"
-                          className="px-6 py-2"
-                          onClick={() => navigate('/contact')}
-                        >
-                          Contact Support
+              {/* Course Content */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Course content</CardTitle>
+                  <CardDescription>
+                    {course.modules.length} sections • {course.modules.reduce((acc: number, module: any) => acc + parseInt(module.duration), 0)} total hours
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {course.modules.map((module: any, index: number) => (
+                      <div
+                        key={index}
+                        className={`flex items-center justify-between p-3 rounded-lg border ${
+                          module.isLocked ? 'bg-muted/50' : 'bg-background'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {module.isLocked ? (
+                            <Lock className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Play className="h-4 w-4 text-primary" />
+                          )}
+                          <div>
+                            <p className="font-medium">{module.title}</p>
+                            <p className="text-sm text-muted-foreground">{module.duration}</p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="sm" disabled={module.isLocked}>
+                          {module.isLocked ? 'Locked' : 'Preview'}
                         </Button>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                )}
-              </div>
+                </CardContent>
+              </Card>
+
+              {/* Requirements */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Requirements</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {course.requirements.map((req: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-sm">{req}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sidebar */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Course Features */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>This course includes:</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Video className="h-4 w-4 text-primary" />
+                    {course.modules.reduce((acc: number, module: any) => acc + parseInt(module.duration), 0)} hours on-demand video
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                    Downloadable resources
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    Certificate of completion
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Users className="h-4 w-4 text-primary" />
+                    Full lifetime access
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
-        </section>
+        </div>
       </main>
-
       <Footer />
     </div>
   );

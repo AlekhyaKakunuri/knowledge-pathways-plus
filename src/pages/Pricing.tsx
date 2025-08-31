@@ -6,7 +6,7 @@ const Pricing = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <main className="pt-20">
+      <main>
         <PricingSection />
       </main>
       <Footer />

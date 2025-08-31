@@ -18,18 +18,52 @@ import {
   Wrench
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { AdminService, PaymentVerification } from "@/services/adminService";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+// Mock data for demonstration
+const mockPayments = [
+  {
+    id: "1",
+    user_id: "user1",
+    plan_name: "Premium Plan",
+    amount: 999,
+    transaction_id: "TXN123456",
+    payment_screenshot: "https://example.com/screenshot1.jpg",
+    status: "pending",
+    created_at: "2024-01-15T10:30:00Z",
+    user_email: "user1@example.com"
+  },
+  {
+    id: "2",
+    user_id: "user2",
+    plan_name: "Premium Plan",
+    amount: 999,
+    transaction_id: "TXN123457",
+    payment_screenshot: "https://example.com/screenshot2.jpg",
+    status: "verified",
+    created_at: "2024-01-14T15:45:00Z",
+    user_email: "user2@example.com"
+  },
+  {
+    id: "3",
+    user_id: "user3",
+    plan_name: "Premium Plan",
+    amount: 999,
+    transaction_id: "TXN123458",
+    payment_screenshot: "https://example.com/screenshot3.jpg",
+    status: "rejected",
+    created_at: "2024-01-13T09:15:00Z",
+    user_email: "user3@example.com"
+  }
+];
+
 const AdminDashboard = () => {
-  const { user } = useAuth();
   const { toast } = useToast();
-  const [payments, setPayments] = useState<PaymentVerification[]>([]);
-  const [stats, setStats] = useState({ activeSubscriptions: 0, pendingPayments: 0 });
+  const [payments, setPayments] = useState(mockPayments);
+  const [stats, setStats] = useState({ activeSubscriptions: 1, pendingPayments: 1 });
   const [loading, setLoading] = useState(true);
-  const [selectedPayment, setSelectedPayment] = useState<PaymentVerification | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [verificationNotes, setVerificationNotes] = useState("");
   const [rejectionNotes, setRejectionNotes] = useState("");
   const [showVerifyDialog, setShowVerifyDialog] = useState(false);
@@ -37,53 +71,44 @@ const AdminDashboard = () => {
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      loadData();
-    }
-  }, [user]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [paymentsData, statsData] = await Promise.all([
-        AdminService.getAllPayments(),
-        AdminService.getSubscriptionStats()
-      ]);
-      
-      setPayments(paymentsData);
-      setStats(statsData);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load admin data",
-        variant: "destructive"
-      });
-    } finally {
+    // Simulate loading delay
+    setTimeout(() => {
       setLoading(false);
-    }
-  };
+    }, 1000);
+  }, []);
 
   const handleVerifyPayment = async () => {
-    if (!selectedPayment || !user) return;
+    if (!selectedPayment) return;
 
     try {
       setProcessing(true);
-      await AdminService.verifyPayment(
-        selectedPayment.id, 
-        user.id, 
-        verificationNotes
-      );
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        // Update local state
+        setPayments(prev => prev.map(p => 
+          p.id === selectedPayment.id 
+            ? { ...p, status: 'verified' }
+            : p
+        ));
+        
+        // Update stats
+        setStats(prev => ({
+          activeSubscriptions: prev.activeSubscriptions + 1,
+          pendingPayments: prev.pendingPayments - 1
+        }));
 
-      toast({
-        title: "Success",
-        description: "Payment verified and subscription activated!",
-      });
+        toast({
+          title: "Success",
+          description: "Payment verified and subscription activated!",
+        });
 
-      setShowVerifyDialog(false);
-      setVerificationNotes("");
-      setSelectedPayment(null);
-      loadData(); // Refresh data
+        setShowVerifyDialog(false);
+        setVerificationNotes("");
+        setSelectedPayment(null);
+        setProcessing(false);
+      }, 1000);
+      
     } catch (error) {
       console.error('Error verifying payment:', error);
       toast({
@@ -91,31 +116,36 @@ const AdminDashboard = () => {
         description: "Failed to verify payment",
         variant: "destructive"
       });
-    } finally {
       setProcessing(false);
     }
   };
 
   const handleRejectPayment = async () => {
-    if (!selectedPayment || !user || !rejectionNotes.trim()) return;
+    if (!selectedPayment || !rejectionNotes.trim()) return;
 
     try {
       setProcessing(true);
-      await AdminService.rejectPayment(
-        selectedPayment.id, 
-        user.id, 
-        rejectionNotes
-      );
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        // Update local state
+        setPayments(prev => prev.map(p => 
+          p.id === selectedPayment.id 
+            ? { ...p, status: 'rejected' }
+            : p
+        ));
 
-      toast({
-        title: "Success",
-        description: "Payment rejected successfully",
-      });
+        toast({
+          title: "Success",
+          description: "Payment rejected successfully!",
+        });
 
-      setShowRejectDialog(false);
-      setRejectionNotes("");
-      setSelectedPayment(null);
-      loadData(); // Refresh data
+        setShowRejectDialog(false);
+        setRejectionNotes("");
+        setSelectedPayment(null);
+        setProcessing(false);
+      }, 1000);
+      
     } catch (error) {
       console.error('Error rejecting payment:', error);
       toast({
@@ -123,32 +153,6 @@ const AdminDashboard = () => {
         description: "Failed to reject payment",
         variant: "destructive"
       });
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  const handleFixDatabase = async (paymentId: string) => {
-    if (!user) return;
-
-    try {
-      setProcessing(true);
-      await AdminService.fixDatabaseState(paymentId, user.id);
-
-      toast({
-        title: "Success",
-        description: "Database state fixed successfully!",
-      });
-
-      loadData(); // Refresh data
-    } catch (error) {
-      console.error('Error fixing database state:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fix database state",
-        variant: "destructive"
-      });
-    } finally {
       setProcessing(false);
     }
   };
@@ -156,13 +160,13 @@ const AdminDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
       case 'verified':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" />Verified</Badge>;
+        return <Badge className="bg-green-100 text-green-800">Verified</Badge>;
       case 'rejected':
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
+        return <Badge variant="destructive">Rejected</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">Unknown</Badge>;
     }
   };
 
@@ -176,15 +180,16 @@ const AdminDashboard = () => {
     });
   };
 
-  if (!user) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50">
         <Header />
-        <main className="pt-20">
-          <div className="container text-center py-20">
-            <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-            <p className="text-muted-foreground">You must be logged in to access the admin dashboard.</p>
+        <main className="py-16 lg:py-20 px-4">
+          <div className="container">
+            <div className="text-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading admin dashboard...</p>
+            </div>
           </div>
         </main>
         <Footer />
@@ -193,38 +198,50 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <Header />
-      
-      <main className="pt-20">
+      <main className="py-16 lg:py-20 px-4">
         <div className="container">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage payments, subscriptions, and platform operations</p>
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-4">
+              <Shield className="h-8 w-8 text-primary" />
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            </div>
+            <p className="text-lg text-gray-600">
+              Manage payments, subscriptions, and platform administration
+            </p>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium opacity-90">Active Subscriptions</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.activeSubscriptions}</div>
-                <p className="text-xs text-muted-foreground">Currently active premium users</p>
+                <div className="text-3xl font-bold">{stats.activeSubscriptions}</div>
+                <p className="text-theme-bg-light text-sm">Premium users</p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending Payments</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
+            <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium opacity-90">Pending Payments</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.pendingPayments}</div>
-                <p className="text-xs text-muted-foreground">Awaiting verification</p>
+                <div className="text-3xl font-bold">{stats.pendingPayments}</div>
+                <p className="text-yellow-100 text-sm">Awaiting verification</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium opacity-90">Total Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">₹{stats.activeSubscriptions * 999}</div>
+                <p className="text-green-100 text-sm">This month</p>
               </CardContent>
             </Card>
           </div>
@@ -232,124 +249,99 @@ const AdminDashboard = () => {
           {/* Payments Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Payment Verifications</CardTitle>
-              <CardDescription>Review and manage payment submissions</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                Payment Verifications
+              </CardTitle>
+              <CardDescription>
+                Review and verify user payment submissions
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                  <p className="text-muted-foreground mt-2">Loading payments...</p>
-                </div>
-              ) : payments.length === 0 ? (
-                <div className="text-center py-8">
-                  <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No payment verifications found</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-medium">User</th>
-                        <th className="text-left py-3 px-4 font-medium">Plan</th>
-                        <th className="text-left py-3 px-4 font-medium">Amount</th>
-                        <th className="text-left py-3 px-4 font-medium">Transaction ID</th>
-                        <th className="text-left py-3 px-4 font-medium">Status</th>
-                        <th className="text-left py-3 px-4 font-medium">Date</th>
-                        <th className="text-left py-3 px-4 font-medium">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {payments.map((payment) => (
-                        <tr key={payment.id} className="border-b hover:bg-muted/50">
-                          <td className="py-3 px-4">
-                            <div className="text-sm font-medium">{payment.user_id.slice(0, 8)}...</div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <Badge variant="outline">{payment.plan_name}</Badge>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-1">
-                              <DollarSign className="h-3 w-3 text-green-600" />
-                              ₹{payment.amount}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <code className="text-xs bg-muted px-2 py-1 rounded">
-                              {payment.transaction_id}
-                            </code>
-                          </td>
-                          <td className="py-3 px-4">
-                            {getStatusBadge(payment.status)}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-muted-foreground">
-                            {formatDate(payment.created_at)}
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setSelectedPayment(payment)}
-                              >
-                                <Eye className="h-3 w-3 mr-1" />
-                                View
-                              </Button>
-                              
-                              {payment.status === 'pending' && (
-                                <>
-                                  <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() => {
-                                      setSelectedPayment(payment);
-                                      setShowVerifyDialog(true);
-                                    }}
-                                  >
-                                    <CheckCircle className="h-3 w-3 mr-1" />
-                                    Verify
-                                  </Button>
-                                  
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => {
-                                      setSelectedPayment(payment);
-                                      setShowRejectDialog(true);
-                                    }}
-                                  >
-                                    <XCircle className="h-3 w-3 mr-1" />
-                                    Reject
-                                  </Button>
-                                </>
-                              )}
-                              
-                              {payment.status === 'verified' && (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-3 px-4 font-medium">User</th>
+                      <th className="text-left py-3 px-4 font-medium">Plan</th>
+                      <th className="text-left py-3 px-4 font-medium">Amount</th>
+                      <th className="text-left py-3 px-4 font-medium">Transaction ID</th>
+                      <th className="text-left py-3 px-4 font-medium">Status</th>
+                      <th className="text-left py-3 px-4 font-medium">Date</th>
+                      <th className="text-left py-3 px-4 font-medium">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payments.map((payment) => (
+                      <tr key={payment.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">
+                          <div>
+                            <div className="font-medium">{payment.user_email}</div>
+                            <div className="text-sm text-gray-500">ID: {payment.user_id}</div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge variant="outline">{payment.plan_name}</Badge>
+                        </td>
+                        <td className="py-3 px-4 font-medium">₹{payment.amount}</td>
+                        <td className="py-3 px-4 font-mono text-sm">{payment.transaction_id}</td>
+                        <td className="py-3 px-4">
+                          {getStatusBadge(payment.status)}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-600">
+                          {formatDate(payment.created_at)}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPayment(payment);
+                                setShowVerifyDialog(true);
+                              }}
+                              disabled={payment.status !== 'pending'}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Review
+                            </Button>
+                            {payment.status === 'pending' && (
+                              <>
                                 <Button
-                                  variant="outline"
+                                  variant="default"
                                   size="sm"
-                                  onClick={() => handleFixDatabase(payment.id)}
-                                  title="Fix database state if subscription is not working"
+                                  onClick={() => {
+                                    setSelectedPayment(payment);
+                                    setShowVerifyDialog(true);
+                                  }}
                                 >
-                                  <Wrench className="h-3 w-3 mr-1" />
-                                  Fix DB
+                                  <CheckCircle className="h-4 w-4 mr-1" />
+                                  Verify
                                 </Button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedPayment(payment);
+                                    setShowRejectDialog(true);
+                                  }}
+                                >
+                                  <XCircle className="h-4 w-4 mr-1" />
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
         </div>
       </main>
-
-      <Footer />
 
       {/* Verify Payment Dialog */}
       <Dialog open={showVerifyDialog} onOpenChange={setShowVerifyDialog}>
@@ -360,9 +352,8 @@ const AdminDashboard = () => {
               Verify this payment and activate the user's subscription
             </DialogDescription>
           </DialogHeader>
-          
           <div className="space-y-4">
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="verificationNotes">Verification Notes (Optional)</Label>
               <Textarea
                 id="verificationNotes"
@@ -372,21 +363,19 @@ const AdminDashboard = () => {
                 rows={3}
               />
             </div>
-            
-            <div className="flex gap-3">
+            <div className="flex gap-3 justify-end">
               <Button
                 variant="outline"
                 onClick={() => setShowVerifyDialog(false)}
-                className="flex-1"
+                disabled={processing}
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleVerifyPayment}
                 disabled={processing}
-                className="flex-1"
               >
-                {processing ? "Verifying..." : "Verify & Activate"}
+                {processing ? "Verifying..." : "Verify Payment"}
               </Button>
             </div>
           </div>
@@ -402,9 +391,8 @@ const AdminDashboard = () => {
               Reject this payment and provide a reason
             </DialogDescription>
           </DialogHeader>
-          
           <div className="space-y-4">
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="rejectionNotes">Rejection Reason *</Label>
               <Textarea
                 id="rejectionNotes"
@@ -415,12 +403,11 @@ const AdminDashboard = () => {
                 required
               />
             </div>
-            
-            <div className="flex gap-3">
+            <div className="flex gap-3 justify-end">
               <Button
                 variant="outline"
                 onClick={() => setShowRejectDialog(false)}
-                className="flex-1"
+                disabled={processing}
               >
                 Cancel
               </Button>
@@ -428,7 +415,6 @@ const AdminDashboard = () => {
                 variant="destructive"
                 onClick={handleRejectPayment}
                 disabled={processing || !rejectionNotes.trim()}
-                className="flex-1"
               >
                 {processing ? "Rejecting..." : "Reject Payment"}
               </Button>
@@ -436,6 +422,8 @@ const AdminDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <Footer />
     </div>
   );
 };
