@@ -2,37 +2,132 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, Star, ChevronDown, ChevronUp } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import CourseCard from "@/components/CourseCard";
+import {
+  Code2,
+  Brain,
+  Palette,
+  Database,
+  Shield,
+  Trophy,
+  Users,
+  Clock,
+  Star,
+  CheckCircle,
+  Play,
+  Award,
+  Infinity,
+  ChevronDown,
+  ChevronUp,
+  Blocks,
+  HandHeart,
+  Settings
+} from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import CourseCard from "@/components/CourseCard";
-import CourseCurriculumModal from "@/components/CourseCurriculumModal";
+
 
 // Mock course data
 const courses = [
   {
-    id: "1",
-    title: 'Python Programming',
-    duration: "4 weeks",
+    id: 1,
+    title: "Python Programming Mastery",
+    description: "Learn Python from basics to advanced with real-world projects",
+    price: 0,
+    originalPrice: 299,
+    duration: "8 weeks",
+    level: "Beginner",
+    icon: Code2,
+    color: "bg-blue-500",
+    category: "programming",
+    students: 1250,
+    rating: 4.8,
+    lessons: 45,
     instructor: "John Smith",
-    instructorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    currentPrice: "299",
-    originalPrice: "499",
-    badge: "New",
-    badgeColor: "bg-green-100 text-green-800"
+    isFree: true,
+    isPremium: false,
+    isMostPopular: false
   },
   {
-    id: "2",
-    title: "AI Technologies",
+    id: 2,
+    title: "AI Fundamentals",
+    description: "Master artificial intelligence concepts and machine learning",
+    price: 449,
+    originalPrice: 599,
     duration: "8 weeks",
-    instructor: "Sarah Johnson",
-    instructorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    currentPrice: "399",
-    originalPrice: "599",
-    badge: "Most Popular",
-    badgeColor: "bg-blue-100 text-blue-800"
+    level: "Intermediate",
+    icon: Brain,
+    color: "bg-purple-500",
+    category: "ai",
+    students: 890,
+    rating: 4.9,
+    lessons: 32,
+    instructor: "Dr. Sarah Chen",
+    isFree: false,
+    isPremium: true,
+    isMostPopular: true
+  }
+];
+
+const features = [
+  {
+    icon: Blocks,
+    title: "Hands-on Projects",
+    description: "Build real-world applications",
+    bgColor: "bg-blue-100",
+    iconColor: "text-blue-600"
+  },
+  {
+    icon: Clock,
+    title: "Flexible Schedule",
+    description: "Learn at your own pace",
+    bgColor: "bg-purple-100",
+    iconColor: "text-purple-600"
+  },
+  {
+    icon: Shield,
+    title: "Placement Support",
+    description: "Career guidance included",
+    bgColor: "bg-green-100",
+    iconColor: "text-green-600"
+  },
+  {
+    icon: Trophy,
+    title: "Expert Mentors",
+    description: "Learn from industry leaders",
+    bgColor: "bg-yellow-100",
+    iconColor: "text-yellow-600"
+  }
+];
+
+const benefits = [
+  {
+    icon: CheckCircle,
+    title: "Expert Mentors",
+    description: "Learn from industry professionals with years of experience",
+    bgColor: "bg-blue-500",
+    iconColor: "text-white"
+  },
+  {
+    icon: HandHeart,
+    title: "Placement Assistance",
+    description: "Get help with job interviews and career opportunities",
+    bgColor: "bg-green-500",
+    iconColor: "text-white"
+  },
+  {
+    icon: Award,
+    title: "Certification",
+    description: "Receive industry-recognized certificates upon completion",
+    bgColor: "bg-purple-500",
+    iconColor: "text-white"
+  },
+  {
+    icon: Infinity,
+    title: "Lifetime Access",
+    description: "Access course materials and updates forever",
+    bgColor: "bg-orange-500",
+    iconColor: "text-white"
   }
 ];
 
@@ -82,8 +177,7 @@ const faqs = [
 
 const AllCourses = () => {
   const [expandedFAQs, setExpandedFAQs] = useState<{ [key: string]: boolean }>({});
-  const [isCurriculumModalOpen, setIsCurriculumModalOpen] = useState(false);
-  const [selectedBundleTitle, setSelectedBundleTitle] = useState("");
+
 
   const toggleFAQ = (faqKey: string) => {
     setExpandedFAQs(prev => ({
@@ -92,164 +186,127 @@ const AllCourses = () => {
     }));
   };
 
-  const openCurriculumModal = (bundleTitle: string) => {
-    setSelectedBundleTitle(bundleTitle);
-    setIsCurriculumModalOpen(true);
-  };
 
-  const closeCurriculumModal = () => {
-    setIsCurriculumModalOpen(false);
-    setSelectedBundleTitle("");
-  };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main>
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-blue-50 to-indigo-50 py-12 md:py-16 lg:py-20">
-          <div className="container text-center">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 md:mb-6 text-gray-900">
-              Explore Our Courses
-            </h1>
-            <p className="text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl lg:max-w-3xl mx-auto">
-              Live mentor led training with placement support
-            </p>
-          </div>
-        </section>
-
-        {/* Courses Section */}
-        <section className="py-12 md:py-16 lg:py-20">
-          <div className="container">
-            <div className="text-center mb-8 md:mb-12 lg:mb-16">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4 text-gray-900">Featured Courses</h2>
-              <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-xl md:max-w-2xl mx-auto">
-                Master in-demand skills with our expert-led courses
+        {/* Course Grid */}
+        <section className="py-12">
+          <div className="container px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Explore Our Courses</h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Master in-demand skills with expert-led courses designed for your career growth
               </p>
-                </div>
-            
-            {/* Course Grid - Using CourseCard component */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+
+            {/* Courses Grid */}
+            <div className="flex flex-wrap justify-center gap-8 mb-16">
               {courses.map((course) => (
-                <CourseCard 
-                  key={course.id} 
-                  course={course}
-                  onLearnMore={() => openCurriculumModal(course.title)}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Bundles Section */}
-        <section className="py-12 md:py-16 lg:py-20 bg-gray-50">
-          <div className="container">
-            <div className="text-center mb-8 md:mb-12 lg:mb-16">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4 text-gray-900">Course Bundles</h2>
-              <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-xl md:max-w-2xl mx-auto">
-                Get more value with our comprehensive course bundles
-                </p>
-              </div>
-              
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {/* Complete Tech Bundle */}
-              <Card className="bg-gradient-to-br from-purple-600 to-blue-600 text-white border-0 overflow-hidden">
-                <CardContent className="p-6 md:p-8">
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Complete Tech Bundle</h3>
-                  <p className="text-purple-100 mb-4 md:mb-6 leading-relaxed text-sm md:text-base">
-                    Master all technologies with our comprehensive bundle including DSA, System Design, and Full Stack Development.
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    className="border-purple-300 text-purple-300 hover:bg-purple-300 hover:text-purple-600"
-                    onClick={() => openCurriculumModal("Complete Tech Bundle")}
-                  >
-                    Get Bundle
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Interview Prep Bundle */}
-              <Card className="bg-gradient-to-br from-green-600 to-teal-600 text-white border-0 overflow-hidden">
-                <CardContent className="p-6 md:p-8">
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Interview Prep Bundle</h3>
-                  <p className="text-green-100 mb-4 md:mb-6 leading-relaxed text-sm md:text-base">
-                    Get interview-ready with our specialized bundle covering coding interviews, system design, and behavioral questions.
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    className="border-green-300 text-green-300 hover:bg-green-300 hover:text-green-600"
-                    onClick={() => openCurriculumModal("Interview Prep Bundle")}
-                  >
-                    Get Bundle
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-
-        {/* FAQs Section */}
-        <section className="py-12 md:py-16 lg:py-20 bg-gray-50">
-          <div className="container">
-            <div className="text-center mb-8 md:mb-12 lg:mb-16">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4 text-gray-900">FAQs</h2>
-              <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-xl md:max-w-2xl mx-auto">
-                Find answers to commonly asked questions
-              </p>
-            </div>
-            
-            <div className="max-w-4xl mx-auto space-y-4 md:space-y-6 lg:space-y-8">
-              {faqs.map((category, categoryIndex) => (
-                <div key={categoryIndex}>
-                  <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-gray-800">{category.category}</h3>
-                  <div className="space-y-2 md:space-y-3">
-                    {category.questions.map((faq, faqIndex) => {
-                      const faqKey = `${categoryIndex}-${faqIndex}`;
-                      const isExpanded = expandedFAQs[faqKey];
-                      
-                      return (
-                        <Card key={faqIndex} className="border-gray-200">
-                          <CardHeader 
-                            className="pb-2 md:pb-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                            onClick={() => toggleFAQ(faqKey)}
-                          >
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-base md:text-lg font-medium text-gray-900">{faq.question}</h4>
-                              {isExpanded ? (
-                                <ChevronUp className="h-5 w-5 text-gray-500" />
-                              ) : (
-                                <ChevronDown className="h-5 w-5 text-gray-500" />
-                              )}
-                            </div>
-                  </CardHeader>
-                          
-                                                    {isExpanded && (
-                            <CardContent className="pt-0 bg-gray-50">
-                              <p className="text-sm md:text-base text-gray-600 leading-relaxed">{faq.answer}</p>
-                            </CardContent>
-                          )}
-                </Card>
-                      );
-                    })}
-                  </div>
+                <div key={course.id} className="w-full max-w-sm">
+                  <CourseCard
+                    course={course}
+                    showLearnMore={true}
+                  />
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-16 bg-gray-50">
+          <div className="container px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {features.map((feature, index) => {
+                const IconComponent = feature.icon;
+                return (
+                  <div key={index} className="text-center">
+                    <div className={`w-20 h-20 ${feature.bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                      <IconComponent className={`w-10 h-10 ${feature.iconColor}`} />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Why Choose Section */}
+        <section className="py-16">
+          <div className="container px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Why Choose EduPlatform?</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                We provide comprehensive learning experiences with industry experts and practical projects
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {benefits.map((benefit, index) => {
+                const IconComponent = benefit.icon;
+                return (
+                  <Card key={index} className="text-center p-6 hover:shadow-lg transition-shadow">
+                    <div className={`w-20 h-20 ${benefit.bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                      <IconComponent className={`w-10 h-10 ${benefit.iconColor}`} />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{benefit.title}</h3>
+                    <p className="text-gray-600 text-sm">{benefit.description}</p>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+
+        {/* FAQ Section */}
+        <section className="py-16 bg-gray-50">
+          <div className="container px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
+            </div>
+
+            <div className="max-w-3xl mx-auto space-y-4">
+              {faqs.map((category, categoryIndex) =>
+                category.questions.map((faq, faqIndex) => {
+                  const faqKey = `${categoryIndex}-${faqIndex}`;
+                  const isExpanded = expandedFAQs[faqKey];
+
+                  return (
+                    <Card key={faqKey} className="p-6">
+                      <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => toggleFAQ(faqKey)}
+                      >
+                        <h3 className="text-lg font-semibold text-theme-primary">
+                          {faq.question}
+                        </h3>
+                        {isExpanded ? (
+                          <ChevronUp className="h-5 w-5 text-gray-500" />
+                        ) : (
+                          <ChevronDown className="h-5 w-5 text-gray-500" />
+                        )}
+                      </div>
+                      {isExpanded && (
+                        <p className="text-gray-600 mt-4">{faq.answer}</p>
+                      )}
+                    </Card>
+                  );
+                })
+              )}
             </div>
           </div>
         </section>
       </main>
-      
+
       <Footer />
 
-      {/* Course Curriculum Modal */}
-      <CourseCurriculumModal
-        isOpen={isCurriculumModalOpen}
-        onClose={closeCurriculumModal}
-        courseTitle={selectedBundleTitle}
-      />
     </div>
   );
 };

@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Company Information */}
           <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold text-theme-primary mb-4">EduMentor</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">EduMentor</h3>
             <p className="text-gray-300 mb-6 leading-relaxed">
               Empowering professionals worldwide with the skills and knowledge needed to excel in their careers.
             </p>

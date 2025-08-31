@@ -13,26 +13,42 @@ const CoursesSection = () => {
 
   const courses = [
     {
-      id: "1",
-      title: 'Python Programming',
-      duration: "4 weeks",
+      id: 1,
+      title: "Python Programming Mastery",
+      description: "Learn Python from basics to advanced with real-world projects",
+      price: 0,
+      originalPrice: 299,
+      duration: "8 weeks",
+      level: "Beginner",
+      icon: Code,
+      color: "bg-blue-500",
+      category: "programming",
+      students: 1250,
+      rating: 4.8,
+      lessons: 45,
       instructor: "John Smith",
-      instructorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      currentPrice: "299",
-      originalPrice: "499",
-      badge: "New",
-      badgeColor: "bg-theme-bg-light text-theme-primary"
+      isFree: true,
+      isPremium: false,
+      isMostPopular: false
     },
     {
-      id: "2",
-      title: "AI Technologies",
+      id: 2,
+      title: "AI Fundamentals",
+      description: "Master artificial intelligence concepts and machine learning",
+      price: 449,
+      originalPrice: 599,
       duration: "8 weeks",
-      instructor: "Sarah Johnson",
-      instructorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      currentPrice: "399",
-      originalPrice: "599",
-      badge: "Most Popular",
-      badgeColor: "bg-blue-100 text-blue-800"
+      level: "Intermediate",
+      icon: Brain,
+      color: "bg-purple-500",
+      category: "ai",
+      students: 890,
+      rating: 4.9,
+      lessons: 32,
+      instructor: "Dr. Sarah Chen",
+      isFree: false,
+      isPremium: true,
+      isMostPopular: true
     }
   ];
 
@@ -59,20 +75,21 @@ const CoursesSection = () => {
             Choose from our carefully curated courses designed to accelerate your career
           </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 md:mb-8">
           {displayCourses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-              />
+            <CourseCard
+              key={course.id}
+              course={course}
+              showLearnMore={false}
+            />
           ))}
         </div>
 
         {/* View All Button */}
         {hasMoreCourses && (
           <div className="text-center">
-                         <Button asChild size="lg" className="bg-theme-primary hover:bg-theme-primary-hover text-white px-8 py-3">
+            <Button asChild size="lg" className="bg-theme-primary hover:bg-theme-primary-hover text-white px-8 py-3">
               <Link to="/courses">
                 View All Courses
               </Link>

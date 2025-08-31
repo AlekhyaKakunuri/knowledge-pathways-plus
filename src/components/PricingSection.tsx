@@ -3,11 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import UPIPayment from './UPIPayment';
 import { Check, X } from "lucide-react";
 
 const PricingSection = () => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [openUPI, setOpenUPI] = useState(false);
@@ -43,12 +45,21 @@ const PricingSection = () => {
       popular: true
     }
   ];
-  
+
   const handleSelectPlan = (plan: any) => {
     if (plan.name === "Free") {
       navigate("/blogs");
       return;
     }
+
+    // Check if user is authenticated for premium features
+    if (!currentUser) {
+      // Store the selected plan in sessionStorage to redirect back after login
+      sessionStorage.setItem('selectedPlan', JSON.stringify(plan));
+      navigate("/signin");
+      return;
+    }
+
     setSelectedPlan(plan);
     setOpenUPI(true);
   };
@@ -71,21 +82,19 @@ const PricingSection = () => {
           <div className="bg-gray-100 rounded-lg p-1 flex items-center">
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
-                billingCycle === 'monthly'
+              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${billingCycle === 'monthly'
                   ? 'bg-theme-primary text-white shadow-sm'
                   : 'text-gray-700 hover:text-gray-900'
-              }`}
+                }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setBillingCycle('yearly')}
-              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 relative ${
-                billingCycle === 'yearly'
+              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 relative ${billingCycle === 'yearly'
                   ? 'bg-theme-primary text-white shadow-sm'
                   : 'text-gray-700 hover:text-gray-900'
-              }`}
+                }`}
             >
               Yearly
               {billingCycle === 'yearly' && (
@@ -108,62 +117,58 @@ const PricingSection = () => {
                   </Badge>
                 </div>
               )}
-              <Card 
-                key={plan.name} 
-                className={`relative transition-all duration-300 hover:shadow-lg h-full flex flex-col ${
-                  plan.popular 
-                    ? 'border-theme-primary shadow-lg' 
+              <Card
+                key={plan.name}
+                className={`relative transition-all duration-300 hover:shadow-lg h-full flex flex-col ${plan.popular
+                    ? 'border-theme-primary shadow-lg'
                     : 'border-gray-200 shadow-md'
-                } bg-white ${plan.popular ? 'mt-3' : 'mt-3'}`}
+                  } bg-white ${plan.popular ? 'mt-3' : 'mt-3'}`}
               >
-              
-              <CardHeader className="text-center pb-4 md:pb-6">
-                <CardTitle className="text-xl md:text-2xl font-bold text-gray-900 mb-2">{plan.name}</CardTitle>
-                <div className="mb-2">
-                  <span className={`text-3xl md:text-4xl lg:text-5xl font-bold ${
-                    plan.popular ? 'text-theme-primary' : 'text-gray-900'
-                  }`}>
-                    ${plan.price}
-                  </span>
-                  <span className="text-gray-500 text-base md:text-lg">/{plan.period}</span>
-                </div>
-                <CardDescription className="text-gray-600 text-sm md:text-base">{plan.description}</CardDescription>
-              </CardHeader>
-              
-              <CardContent className="flex-1 flex flex-col">
-                <ul className="space-y-3 flex-1">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center gap-3">
-                      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
-                        feature.included 
-                          ? 'bg-green-100 text-green-600' 
-                          : 'bg-gray-100 text-gray-400'
+
+                <CardHeader className="text-center pb-4 md:pb-6">
+                  <CardTitle className="text-xl md:text-2xl font-bold text-gray-900 mb-2">{plan.name}</CardTitle>
+                  <div className="mb-2">
+                    <span className={`text-3xl md:text-4xl lg:text-5xl font-bold ${plan.popular ? 'text-theme-primary' : 'text-gray-900'
                       }`}>
-                        {feature.included ? (
-                          <Check className="h-3 w-3" />
-                        ) : (
-                          <X className="h-3 w-3" />
-                        )}
-                      </div>
-                      <span className={`text-sm ${
-                        feature.included ? 'text-gray-700' : 'text-gray-500'
-                      }`}>
-                        {feature.text}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <Button 
-                  variant={plan.buttonVariant as any} 
-                  className="w-full mt-6 !bg-theme-primary hover:!bg-theme-primary-hover !text-white hover:!text-white !border-theme-primary"
-                  size="lg"
-                  onClick={() => handleSelectPlan(plan)}
-                >
-                  {plan.buttonText}
-                </Button>
-              </CardContent>
-            </Card>
+                      ${plan.price}
+                    </span>
+                    <span className="text-gray-500 text-base md:text-lg">/{plan.period}</span>
+                  </div>
+                  <CardDescription className="text-gray-600 text-sm md:text-base">{plan.description}</CardDescription>
+                </CardHeader>
+
+                <CardContent className="flex-1 flex flex-col">
+                  <ul className="space-y-3 flex-1">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-center gap-3">
+                        <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${feature.included
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-gray-100 text-gray-400'
+                          }`}>
+                          {feature.included ? (
+                            <Check className="h-3 w-3" />
+                          ) : (
+                            <X className="h-3 w-3" />
+                          )}
+                        </div>
+                        <span className={`text-sm ${feature.included ? 'text-gray-700' : 'text-gray-500'
+                          }`}>
+                          {feature.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    variant={plan.buttonVariant as any}
+                    className="w-full mt-6 !bg-theme-primary hover:!bg-theme-primary-hover !text-white hover:!text-white !border-theme-primary"
+                    size="lg"
+                    onClick={() => handleSelectPlan(plan)}
+                  >
+                    {plan.buttonText}
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           ))}
         </div>

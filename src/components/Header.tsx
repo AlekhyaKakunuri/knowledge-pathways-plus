@@ -1,9 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu } from "lucide-react";
+import { BookOpen, Menu, User, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const location = useLocation();
+  const { currentUser, logout } = useAuth();
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -18,6 +26,14 @@ const Header = () => {
       return `${baseClass} text-theme-primary font-semibold`;
     }
     return `${baseClass} text-muted-foreground hover:text-theme-primary`;
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -51,11 +67,34 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link to="/signin">
-            <Button variant="hero" size="sm">
-              Sign In
-            </Button>
-          </Link>
+          {currentUser ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span className="hidden md:inline">
+                    {currentUser.displayName || currentUser.email}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => window.location.href = '/profile'}>
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to="/signin">
+              <Button variant="hero" size="sm">
+                Sign In
+              </Button>
+            </Link>
+          )}
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-4 w-4" />
           </Button>
