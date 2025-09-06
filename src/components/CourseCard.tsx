@@ -134,7 +134,7 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
                   className="flex-1 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white font-semibold py-2.5"
                   onClick={() => setIsModalOpen(true)}
                 >
-                  Learn More
+                  View Details
                 </Button>
               )}
             </div>

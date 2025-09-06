@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, ChevronDown, ChevronUp } from "lucide-react";
+import { X, ChevronDown, ChevronUp, Users, Briefcase, Code2, BookOpen, Calculator, Brain } from "lucide-react";
 
 interface CourseDetailsModalProps {
     isOpen: boolean;
@@ -39,9 +39,24 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
             case "Python Programming Mastery":
                 return {
                     prerequisites: [
-                        "Basic computer knowledge",
-                        "High school mathematics",
-                        "Logical thinking skills"
+                        {
+                            name: "Basic computer knowledge",
+                            icon: BookOpen,
+                            description: "Familiarity with computers and basic operations",
+                            color: "bg-blue-100 text-blue-600"
+                        },
+                        {
+                            name: "High school mathematics",
+                            icon: Calculator,
+                            description: "Basic math concepts and problem-solving",
+                            color: "bg-green-100 text-green-600"
+                        },
+                        {
+                            name: "Logical thinking skills",
+                            icon: Brain,
+                            description: "Ability to think step-by-step and solve problems",
+                            color: "bg-purple-100 text-purple-600"
+                        }
                     ],
                     curriculum: [
                         { week: "Week 1-3", title: "Fundamentals", topics: ["Variables, Data Types", "Control Structures", "Functions"] },
@@ -53,9 +68,24 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
             case "AI Fundamentals":
                 return {
                     prerequisites: [
-                        "Basic Python knowledge",
-                        "High school mathematics",
-                        "Logical thinking skills"
+                        {
+                            name: "Basic Python knowledge",
+                            icon: Code2,
+                            description: "Understanding of Python programming basics",
+                            color: "bg-blue-100 text-blue-600"
+                        },
+                        {
+                            name: "High school mathematics",
+                            icon: Calculator,
+                            description: "Basic math concepts and problem-solving",
+                            color: "bg-green-100 text-green-600"
+                        },
+                        {
+                            name: "Logical thinking skills",
+                            icon: Brain,
+                            description: "Ability to think step-by-step and solve problems",
+                            color: "bg-purple-100 text-purple-600"
+                        }
                     ],
                     curriculum: [
                         {
@@ -100,14 +130,42 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
                         }
                     ],
                     addOns: [
-                        { name: "Mock Interviews"},
-                        { name: "Placement Assistance"},
-                        { name: "Real-World Projects"}
+                        { 
+                            name: "Mock Interviews",
+                            icon: Users,
+                            description: "Practice with industry experts",
+                            color: "bg-blue-100 text-blue-600"
+                        },
+                        { 
+                            name: "Placement Assistance",
+                            icon: Briefcase,
+                            description: "Career guidance and job support",
+                            color: "bg-green-100 text-green-600"
+                        },
+                        { 
+                            name: "Real-World Projects",
+                            icon: Code2,
+                            description: "Hands-on industry projects",
+                            color: "bg-purple-100 text-purple-600"
+                        }
                     ]
                 };
             default:
                 return {
-                    prerequisites: ["Basic computer knowledge", "Problem-solving skills"],
+                    prerequisites: [
+                        {
+                            name: "Basic computer knowledge",
+                            icon: BookOpen,
+                            description: "Familiarity with computers and basic operations",
+                            color: "bg-blue-100 text-blue-600"
+                        },
+                        {
+                            name: "Problem-solving skills",
+                            icon: Brain,
+                            description: "Ability to analyze and solve problems",
+                            color: "bg-purple-100 text-purple-600"
+                        }
+                    ],
                     curriculum: [
                         { week: "Week 1-4", title: "Fundamentals", topics: ["Basic Concepts", "Core Principles"] },
                         { week: "Week 5-8", title: "Advanced Topics", topics: ["Advanced Concepts", "Practical Applications"] }
@@ -145,10 +203,6 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
                             <span className="bg-white/20 px-2 md:px-3 py-1 rounded-full">{course.duration}</span>
                             <span className="bg-white/20 px-2 md:px-3 py-1 rounded-full">{course.level}</span>
                         </div>
-
-                        <Button className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-4 md:px-6 py-2 md:py-2.5 text-sm md:text-base">
-                            {course.price === 0 ? "Start Free" : "Enroll Now"}
-                        </Button>
                     </div>
                 </div>
 
@@ -161,32 +215,59 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
 
                     {/* Prerequisites */}
                     <div>
-                        <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">Prerequisites</h3>
-                        <ul className="space-y-2">
-                            {courseDetails.prerequisites.map((prereq, index) => (
-                                <li key={index} className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
-                                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
-                                    <span>{prereq}</span>
-                                </li>
-                            ))}
-                        </ul>
+                        <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Prerequisites</h3>
+                        <div className="grid grid-cols-1 gap-3">
+                            {courseDetails.prerequisites.map((prereq, index) => {
+                                const IconComponent = prereq.icon;
+                                return (
+                                    <div
+                                        key={index}
+                                        className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors bg-gray-50/50"
+                                    >
+                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${prereq.color} flex-shrink-0`}>
+                                            <IconComponent className="w-5 h-5" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-medium text-gray-900 text-sm md:text-base">
+                                                {prereq.name}
+                                            </h4>
+                                            <p className="text-xs md:text-sm text-gray-600 mt-0.5">
+                                                {prereq.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
 
                     {/* Add Ons */}
                     {courseDetails.addOns && courseDetails.addOns.length > 0 && (
                         <div>
-                            <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">Add Ons</h3>
-                            <ul className="space-y-2">
-                                {courseDetails.addOns.map((addon, index) => (
-                                    <li
-                                        key={index}
-                                        className="flex items-center gap-2 text-xs md:text-sm text-gray-600"
-                                    >
-                                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
-                                        <span>{addon.name}</span>
-                                    </li>
-                                ))}
-                            </ul>
+                            <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Add Ons</h3>
+                            <div className="grid grid-cols-1 gap-3">
+                                {courseDetails.addOns.map((addon, index) => {
+                                    const IconComponent = addon.icon;
+                                    return (
+                                        <div
+                                            key={index}
+                                            className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors bg-gray-50/50"
+                                        >
+                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${addon.color} flex-shrink-0`}>
+                                                <IconComponent className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-medium text-gray-900 text-sm md:text-base">
+                                                    {addon.name}
+                                                </h4>
+                                                <p className="text-xs md:text-sm text-gray-600 mt-0.5">
+                                                    {addon.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
 

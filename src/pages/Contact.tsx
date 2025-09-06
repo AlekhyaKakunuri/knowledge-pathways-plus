@@ -199,12 +199,8 @@ const Contact = () => {
                           <SelectValue placeholder="Select a course" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="react-development">React Development</SelectItem>
-                          <SelectItem value="typescript-advanced">Advanced TypeScript</SelectItem>
-                          <SelectItem value="nodejs-api">Node.js API Development</SelectItem>
-                          <SelectItem value="python-data-science">Python for Data Science</SelectItem>
-                          <SelectItem value="docker-devops">Docker & DevOps</SelectItem>
-                          <SelectItem value="css-grid">CSS Grid Layout</SelectItem>
+                          <SelectItem value="python-programming-mastery">Python Programming Mastery</SelectItem>
+                          <SelectItem value="ai-fundamentals">AI Fundamentals</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
