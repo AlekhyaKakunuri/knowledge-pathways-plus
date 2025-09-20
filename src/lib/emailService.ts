@@ -36,11 +36,9 @@ export const sendEmail = async (formData: ContactFormData): Promise<{ success: b
       templateParams
     );
 
-    console.log('Email sent successfully:', response);
     return { success: true };
 
   } catch (error) {
-    console.error('Error sending email:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to send email' 

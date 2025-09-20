@@ -4,6 +4,7 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
+import { UserRoleProvider } from "./contexts/UserRoleContext";
 import Index from "./pages/Index";
 import Pricing from "./pages/Pricing";
 import AllBlogs from "./pages/AllBlogs";
@@ -16,7 +17,9 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
 import AccountSettings from "./pages/AccountSettings";
+import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import WhatsAppChat from "./components/WhatsAppChat";
 import FloatingBookingButton from "./components/FloatingBookingButton";
 import ScrollToTop from "./components/ScrollToTop";
@@ -28,7 +31,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <Router>
+          <UserRoleProvider>
+            <Router>
             <div className="min-h-screen bg-background">
               {/* Scroll to top on route change */}
               <ScrollToTop />
@@ -48,13 +52,15 @@ function App() {
                 {/* Protected Routes */}
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
+                <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               </Routes>
               
               {/* Global Components */}
               <WhatsAppChat />
               <FloatingBookingButton />
             </div>
-          </Router>
+            </Router>
+          </UserRoleProvider>
         </AuthProvider>
         <Toaster />
         <SonnerToaster />

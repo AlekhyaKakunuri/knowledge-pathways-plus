@@ -4,11 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { sendEmail } from "@/lib/emailService";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const Contact = () => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -17,20 +20,51 @@ const Contact = () => {
     courseInterest: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({ 
-      firstName: '', 
-      lastName: '', 
-      email: '', 
-      phone: '', 
-      courseInterest: '', 
-      message: '' 
-    });
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+      const result = await sendEmail(formData);
+
+      if (result.success) {
+        setSubmitStatus('success');
+        toast({
+          title: "Message sent successfully!",
+          description: "Thank you for contacting us. We'll get back to you within 24 hours.",
+        });
+        
+        // Reset form
+        setFormData({ 
+          firstName: '', 
+          lastName: '', 
+          email: '', 
+          phone: '', 
+          courseInterest: '', 
+          message: '' 
+        });
+        
+        // Reset button state after a delay
+        setTimeout(() => {
+          setSubmitStatus('idle');
+        }, 3000);
+      } else {
+        throw new Error(result.error || 'Failed to send message');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      toast({
+        title: "Failed to send message",
+        description: "Please try again later or contact us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -38,6 +72,11 @@ const Contact = () => {
       ...prev,
       [e.target.name]: e.target.value
     }));
+    
+    // Reset button state when user starts typing
+    if (submitStatus !== 'idle') {
+      setSubmitStatus('idle');
+    }
   };
 
   const handleSelectChange = (value: string) => {
@@ -45,6 +84,11 @@ const Contact = () => {
       ...prev,
       courseInterest: value
     }));
+    
+    // Reset button state when user changes selection
+    if (submitStatus !== 'idle') {
+      setSubmitStatus('idle');
+    }
   };
 
   return (
@@ -223,9 +267,27 @@ const Contact = () => {
                     
                     <Button 
                       type="submit" 
-                                             className="w-full bg-theme-primary hover:bg-theme-primary-hover text-white font-medium py-3"
+                      disabled={isSubmitting}
+                      className="w-full bg-theme-primary hover:bg-theme-primary-hover text-white font-medium py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Send Message
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Sending Message...
+                        </>
+                      ) : submitStatus === 'success' ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Message Sent!
+                        </>
+                      ) : submitStatus === 'error' ? (
+                        <>
+                          <AlertCircle className="w-4 h-4 mr-2" />
+                          Try Again
+                        </>
+                      ) : (
+                        'Send Message'
+                      )}
                     </Button>
                   </form>
                 </CardContent>

@@ -6,8 +6,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { QrCode, CreditCard, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { QrCode, CreditCard, CheckCircle, Clock, AlertCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { savePaymentDetails } from "@/lib/paymentService";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Plan {
   name: string;
@@ -28,6 +30,7 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
   const [paymentScreenshot, setPaymentScreenshot] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { currentUser } = useAuth();
 
   // UPI details for payment
   const upiDetails = {
@@ -52,18 +55,46 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
       return;
     }
 
+    if (!currentUser) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to submit payment",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate API call delay
-    setTimeout(() => {
-      setPaymentStep('confirmation');
-      toast({
-        title: "Payment Submitted Successfully!",
-        description: "Your payment has been submitted for verification. We'll activate your plan within 24 hours.",
+    try {
+      // Save payment details to Firebase
+      const result = await savePaymentDetails({
+        transactionId: transactionId.trim(),
+        planName: selectedPlan?.name || 'Unknown Plan',
+        amount: selectedPlan?.price || '0',
+        userEmail: currentUser?.email || 'guest@example.com',
+        userName: currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Guest User',
+        paymentScreenshot: paymentScreenshot.trim() || '',
       });
+
+      if (result.success) {
+        setPaymentStep('confirmation');
+        toast({
+          title: "Payment Submitted Successfully!",
+          description: "Your payment has been saved and submitted for verification. We'll activate your plan within 24 hours.",
+        });
+      } else {
+        throw new Error('Failed to save payment details');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit payment. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
       setIsSubmitting(false);
-      // In the future, this will integrate with your REST API
-    }, 1000);
+    }
   };
 
   const handleClose = () => {
@@ -100,8 +131,10 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-semibold text-sm sm:text-base">Total Amount:</span>
                   <div className="text-xl sm:text-2xl font-bold text-primary">
-                    ₹{selectedPlan.price}
-                    <span className="text-xs sm:text-sm font-normal text-muted-foreground">/month</span>
+                    ₹{parseInt(selectedPlan.price).toLocaleString()}
+                    <span className="text-xs sm:text-sm font-normal text-muted-foreground">
+                      /month
+                    </span>
                   </div>
                 </div>
                 <Badge className="bg-gradient-premium text-premium-foreground text-xs">
@@ -143,7 +176,7 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
               className="w-full text-sm sm:text-base py-2 sm:py-3"
               size="lg"
             >
-              Proceed to Pay ₹{selectedPlan.price}
+              Proceed to Pay ₹{parseInt(selectedPlan.price).toLocaleString()}
             </Button>
           </div>
         )}
@@ -151,13 +184,30 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
         {paymentStep === 'qr' && (
           <div className="space-y-4 sm:space-y-6 text-center">
             {/* QR Code Section */}
-            <div className="bg-white p-4 sm:p-6 rounded-lg border">
-              <div className="w-32 h-32 sm:w-48 sm:h-48 mx-auto bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <QrCode className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-2 text-primary" />
+            <div className="bg-white p-6 sm:p-8 rounded-lg border">
+              <div className="w-48 h-48 sm:w-56 sm:h-56 mx-auto bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center">
+                <img 
+                  src="/phonepe-qr-code.png" 
+                  alt="PhonePe QR Code for Payment"
+                  className="w-full h-full object-cover"
+                  onLoad={() => console.log('QR code image loaded successfully')}
+                  onError={(e) => {
+                    console.error('QR code image failed to load:', e);
+                    // Hide the image and show fallback if it fails to load
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
+                />
+                <div className="hidden flex-col items-center justify-center text-center p-4">
+                  <QrCode className="h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-2 text-primary" />
                   <p className="text-xs sm:text-sm text-muted-foreground">QR Code for UPI Payment</p>
                   <p className="text-xs font-mono mt-2 break-all px-2">{generateQRCode()}</p>
                 </div>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-4">QR Code for UPI Payment</p>
+              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+                📱 Scan this QR code with PhonePe app to complete payment
               </div>
             </div>
 
@@ -173,7 +223,7 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Amount:</span>
-                  <span className="font-semibold">₹{upiDetails.amount}</span>
+                  <span className="font-semibold">₹{parseInt(upiDetails.amount).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Plan:</span>
@@ -181,6 +231,7 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
                 </div>
               </CardContent>
             </Card>
+
 
             {/* Transaction ID Input */}
             <div className="space-y-3 sm:space-y-4">
@@ -221,7 +272,14 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
                 disabled={isSubmitting}
                 className="flex-1 text-sm py-2"
               >
-                {isSubmitting ? "Submitting..." : "Submit Payment"}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Payment"
+                )}
               </Button>
             </div>
           </div>

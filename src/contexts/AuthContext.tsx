@@ -108,7 +108,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await signOut(auth);
     } catch (error: any) {
-      console.error('Logout error:', error);
       throw error;
     }
   };
@@ -221,7 +220,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       return unsubscribe;
     } catch (error) {
-      console.error('Firebase auth initialization error:', error);
       setLoading(false);
       setAuthInitialized(true);
     }

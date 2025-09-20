@@ -2,9 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Code, Brain, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import CourseDetailsModal from "./CourseDetailsModal";
 import UPIPayment from "./UPIPayment";
 
@@ -37,18 +39,76 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
   const [isUPIOpen, setIsUPIOpen] = useState(false);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   
   const IconComponent = course.icon;
+
+  // Check if user has verified payments for AI Fundamentals OR Course Package
+  useEffect(() => {
+    const checkSubscriptionStatus = async () => {
+      if (!currentUser?.email) {
+        setHasActiveSubscription(false);
+        return;
+      }
+
+
+      try {
+        // Check for AI Fundamentals OR Course Package subscription
+        const q1 = query(
+          collection(db, 'payments'),
+          where('userEmail', '==', currentUser.email),
+          where('status', '==', 'verified'),
+          where('planName', '==', 'AI Fundamentals')
+        );
+        
+        const q2 = query(
+          collection(db, 'payments'),
+          where('userEmail', '==', currentUser.email),
+          where('status', '==', 'verified'),
+          where('planName', '==', 'Course Package')
+        );
+        
+        const [snapshot1, snapshot2] = await Promise.all([
+          getDocs(q1),
+          getDocs(q2)
+        ]);
+        
+        const hasAIFundamentals = !snapshot1.empty;
+        const hasCoursePackage = !snapshot2.empty;
+        
+        
+        if (hasAIFundamentals) {
+        }
+        if (hasCoursePackage) {
+        }
+        
+        // User has access if they have either AI Fundamentals OR Course Package
+        setHasActiveSubscription(hasAIFundamentals || hasCoursePackage);
+      } catch (error) {
+        setHasActiveSubscription(false);
+      }
+    };
+
+    checkSubscriptionStatus();
+  }, [currentUser]);
+
+  // Debug logging
 
   const handleEnrollClick = () => {
     if (course.price === 0) {
       // For free courses, no authentication needed
       // You can add your free course enrollment logic here
-      console.log("Starting free course:", course.title);
       return;
     }
     
-    // For paid courses, check authentication
+    // For paid courses, check if user has active subscription
+    if (hasActiveSubscription) {
+      // User has premium subscription, can access all courses
+      navigate(`/course/${course.id}`);
+      return;
+    }
+    
+    // For paid courses without subscription, check authentication
     if (currentUser) {
       // User is logged in, open UPI payment modal
       setIsUPIOpen(true);
@@ -104,7 +164,7 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
                 {course.isFree ? (
                   <span className="text-xl font-bold text-green-600">Free</span>
                 ) : (
-                  <span className="text-xl font-bold text-theme-primary">${course.price}</span>
+                  <span className="text-xl font-bold text-theme-primary">₹{course.price.toLocaleString()}</span>
                 )}
               </div>
               
@@ -126,7 +186,12 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
                 className="flex-1 bg-theme-primary hover:bg-theme-primary-hover text-white font-semibold py-2.5"
                 onClick={handleEnrollClick}
               >
-                {course.price === 0 ? "Start Free" : "Enroll Now"}
+                {course.price === 0 
+                  ? "Start Free" 
+                  : hasActiveSubscription 
+                    ? "Access Course" 
+                    : "Enroll Now"
+                }
               </Button>
               {showLearnMore && (
                 <Button 

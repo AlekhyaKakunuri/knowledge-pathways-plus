@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import UPIPayment from './UPIPayment';
 import { Check, X } from "lucide-react";
 
@@ -13,6 +15,58 @@ const PricingSection = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [openUPI, setOpenUPI] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+
+  // Check if user has verified payments for Blog Premium OR Course Package
+  useEffect(() => {
+    const checkSubscriptionStatus = async () => {
+      if (!currentUser?.email) {
+        setHasActiveSubscription(false);
+        return;
+      }
+
+
+      try {
+        // Check for Blog Premium OR Course Package subscription
+        const q1 = query(
+          collection(db, 'payments'),
+          where('userEmail', '==', currentUser.email),
+          where('status', '==', 'verified'),
+          where('planName', '==', 'Premium') // Blog Premium plan
+        );
+        
+        const q2 = query(
+          collection(db, 'payments'),
+          where('userEmail', '==', currentUser.email),
+          where('status', '==', 'verified'),
+          where('planName', '==', 'Course Package') // Course Package plan
+        );
+        
+        const [snapshot1, snapshot2] = await Promise.all([
+          getDocs(q1),
+          getDocs(q2)
+        ]);
+        
+        const hasBlogPremium = !snapshot1.empty;
+        const hasCoursePackage = !snapshot2.empty;
+        
+        
+        if (hasBlogPremium) {
+        }
+        if (hasCoursePackage) {
+        }
+        
+        // User has access if they have either Blog Premium OR Course Package
+        setHasActiveSubscription(hasBlogPremium || hasCoursePackage);
+      } catch (error) {
+        setHasActiveSubscription(false);
+      }
+    };
+
+    checkSubscriptionStatus();
+  }, [currentUser]);
+
+  // Debug logging
 
   const plans = [
     {
@@ -32,17 +86,21 @@ const PricingSection = () => {
     },
     {
       name: "Premium",
-      price: billingCycle === 'monthly' ? "19" : "15",
-      period: billingCycle === 'monthly' ? "month" : "month",
+      price: billingCycle === 'monthly' ? "449" : "4308",
+      period: billingCycle === 'monthly' ? "month" : "year",
       description: "Unlock unlimited learning",
       features: [
         { text: "Unlimited access to all blog articles", included: true },
         { text: "Exclusive premium content", included: true },
-        { text: "Community/forum access", included: true }
+        { text: "Community/forum access", included: true },
+        { text: "Priority support", included: true }
       ],
-      buttonText: "Go Premium",
-      buttonVariant: "default",
-      popular: true
+      buttonText: hasActiveSubscription ? "Active Plan" : "Go Premium",
+      buttonVariant: hasActiveSubscription ? "secondary" : "default",
+      popular: true,
+      yearlyDiscount: billingCycle === 'yearly' ? "20% OFF" : null,
+      monthlyEquivalent: billingCycle === 'yearly' ? "359" : null,
+      isActive: hasActiveSubscription
     }
   ];
 
@@ -50,6 +108,11 @@ const PricingSection = () => {
     if (plan.name === "Free") {
       navigate("/blogs");
       return;
+    }
+
+    // If user already has active subscription, don't allow new purchase
+    if (hasActiveSubscription) {
+      return; // Button will be disabled, but just in case
     }
 
     // Check if user is authenticated for premium features
@@ -130,9 +193,26 @@ const PricingSection = () => {
                   <div className="mb-2">
                     <span className={`text-3xl md:text-4xl lg:text-5xl font-bold ${plan.popular ? 'text-theme-primary' : 'text-gray-900'
                       }`}>
-                      ${plan.price}
+                      ₹{parseInt(plan.price).toLocaleString()}
                     </span>
                     <span className="text-gray-500 text-base md:text-lg">/{plan.period}</span>
+                    {plan.monthlyEquivalent && (
+                      <div className="mt-1">
+                        <p className="text-sm text-gray-600">
+                          Just ₹{parseInt(plan.monthlyEquivalent).toLocaleString()}/month
+                        </p>
+                      </div>
+                    )}
+                    {plan.yearlyDiscount && (
+                      <div className="mt-2">
+                        <Badge className="bg-green-100 text-green-800 text-sm">
+                          {plan.yearlyDiscount}
+                        </Badge>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Save ₹{((449 * 12) - parseInt(plan.price)).toLocaleString()} vs monthly
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <CardDescription className="text-gray-600 text-sm md:text-base">{plan.description}</CardDescription>
                 </CardHeader>
@@ -161,9 +241,13 @@ const PricingSection = () => {
 
                   <Button
                     variant={plan.buttonVariant as any}
-                    className="w-full mt-6 !bg-theme-primary hover:!bg-theme-primary-hover !text-white hover:!text-white !border-theme-primary"
+                    className={`w-full mt-6 ${plan.isActive 
+                      ? '!bg-green-500 hover:!bg-green-600 !text-white cursor-not-allowed' 
+                      : '!bg-theme-primary hover:!bg-theme-primary-hover !text-white hover:!text-white !border-theme-primary'
+                    }`}
                     size="lg"
                     onClick={() => handleSelectPlan(plan)}
+                    disabled={plan.isActive}
                   >
                     {plan.buttonText}
                   </Button>
