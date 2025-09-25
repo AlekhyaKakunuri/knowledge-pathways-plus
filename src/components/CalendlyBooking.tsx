@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Calendar, Clock, Video, Users, Star, ExternalLink, Play, Copy, Mail, Check } from 'lucide-react';
+import { Calendar, Clock, Video, Users, Star, ExternalLink } from 'lucide-react';
 import { CALENDLY_CONFIG } from '@/config/calendly';
 import { useNavigate } from 'react-router-dom';
 

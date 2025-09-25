@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, User, LogOut, Shield } from "lucide-react";
+import { BookOpen, Menu, User, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserRole } from "@/contexts/UserRoleContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +12,6 @@ import {
 const Header = () => {
   const location = useLocation();
   const { currentUser, logout } = useAuth();
-  const { isAdmin } = useUserRole();
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -83,12 +81,6 @@ const Header = () => {
                   <User className="h-4 w-4 mr-2" />
                   Profile
                 </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem onClick={() => window.location.href = '/admin-dashboard'}>
-                    <Shield className="h-4 w-4 mr-2" />
-                    Admin Dashboard
-                  </DropdownMenuItem>
-                )}
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out

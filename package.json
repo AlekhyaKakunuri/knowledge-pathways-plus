@@ -1,14 +1,20 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "aicareerx-knowledge-pathways",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "AI CareerX - Knowledge Pathways Plus - Online Learning Platform",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "eslint . --fix",
+    "preview": "vite preview",
+    "deploy": "npm run build && firebase deploy",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:firestore": "firebase deploy --only firestore:rules",
+    "deploy:aicareerx": "VITE_FIREBASE_PROJECT=aicareerx firebase use aicareerx-51133 && npm run build && firebase deploy",
+    "deploy:educourse": "VITE_FIREBASE_PROJECT=educourse firebase use educourse-6b0c9 && npm run build && firebase deploy"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

@@ -1,18 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 interface UserRoleContextType {
-  userRole: 'admin' | 'user' | 'loading';
-  isAdmin: boolean;
+  userRole: 'user';
+  isAdmin: false;
   isLoading: boolean;
 }
 
 const UserRoleContext = createContext<UserRoleContextType>({
-  userRole: 'loading',
+  userRole: 'user',
   isAdmin: false,
-  isLoading: true,
+  isLoading: false,
 });
 
 export const useUserRole = () => {
@@ -29,45 +27,11 @@ interface UserRoleProviderProps {
 
 export const UserRoleProvider: React.FC<UserRoleProviderProps> = ({ children }) => {
   const { currentUser } = useAuth();
-  const [userRole, setUserRole] = useState<'admin' | 'user' | 'loading'>('loading');
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkUserRole = async () => {
-      if (!currentUser) {
-        setUserRole('user');
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        // Check if user is in the admin users collection by email
-        const q = query(
-          collection(db, 'adminUsers'),
-          where('email', '==', currentUser.email)
-        );
-        
-        const querySnapshot = await getDocs(q);
-        
-        if (!querySnapshot.empty) {
-          setUserRole('admin');
-        } else {
-          setUserRole('user');
-        }
-      } catch (error) {
-        setUserRole('user');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkUserRole();
-  }, [currentUser]);
 
   const value: UserRoleContextType = {
-    userRole,
-    isAdmin: userRole === 'admin',
-    isLoading,
+    userRole: 'user',
+    isAdmin: false,
+    isLoading: !currentUser,
   };
 
   return (

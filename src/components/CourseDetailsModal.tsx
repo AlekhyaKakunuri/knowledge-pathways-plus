@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { X, ChevronDown, ChevronUp, Users, Briefcase, Code2, BookOpen, Calculator, Brain } from "lucide-react";
+import { X, ChevronDown, ChevronUp, Users, Briefcase, Code2, BookOpen, Calculator, Brain, Play } from "lucide-react";
 
 interface CourseDetailsModalProps {
     isOpen: boolean;
@@ -38,6 +37,18 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
         switch (course.title) {
             case "Python Programming Mastery":
                 return {
+                    videos: [
+                        {
+                            id: "dQw4w9WgXcQ", // Replace with actual YouTube video ID
+                            title: "Python Introduction - Getting Started",
+                            description: "Learn the basics of Python programming language"
+                        },
+                        {
+                            id: "dQw4w9WgXcQ", // Replace with actual YouTube video ID
+                            title: "Variables and Data Types",
+                            description: "Understanding Python variables and different data types"
+                        }
+                    ],
                     prerequisites: [
                         {
                             name: "Basic computer knowledge",
@@ -67,6 +78,18 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
                 };
             case "AI Fundamentals":
                 return {
+                    videos: [
+                        {
+                            id: "dQw4w9WgXcQ", // Replace with actual YouTube video ID
+                            title: "Introduction to AI and Machine Learning",
+                            description: "Understanding the fundamentals of Artificial Intelligence"
+                        },
+                        {
+                            id: "dQw4w9WgXcQ", // Replace with actual YouTube video ID
+                            title: "Neural Networks Deep Dive",
+                            description: "Learn how neural networks work and their applications"
+                        }
+                    ],
                     prerequisites: [
                         {
                             name: "Basic Python knowledge",
@@ -152,6 +175,13 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
                 };
             default:
                 return {
+                    videos: [
+                        {
+                            id: "dQw4w9WgXcQ", // Replace with actual YouTube video ID
+                            title: "Course Introduction",
+                            description: "Get started with this comprehensive course"
+                        }
+                    ],
                     prerequisites: [
                         {
                             name: "Basic computer knowledge",
@@ -178,7 +208,7 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-end z-50">
-            <div className="bg-white h-full w-full max-w-[90%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[55%] xl:max-w-[50%] shadow-xl overflow-y-auto animate-in slide-in-from-right duration-300">
+            <div className="bg-white h-full w-full shadow-xl overflow-y-auto animate-in slide-in-from-right duration-300">
                 {/* Header - Purple gradient like in image */}
                 <div className="bg-gradient-to-br from-purple-600 to-blue-600 text-white p-4 md:p-6 relative">
                     <Button
@@ -207,31 +237,67 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
                 </div>
 
                 {/* Content */}
-                <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+                <div className="p-6 md:p-8">
                     {/* Course Info */}
-                    <div className="text-sm md:text-base text-gray-600">
+                    <div className="text-lg text-gray-600 mb-8">
                         {course.lessons} lessons • {course.level}
                     </div>
 
+                    {/* Course Videos - Clean Section */}
+                    {courseDetails.videos && courseDetails.videos.length > 0 && (
+                        <div className="mb-8">
+                            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                <Play className="w-5 h-5 text-theme-primary" />
+                                Course Videos
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {courseDetails.videos.map((video, index) => (
+                                    <div key={index}>
+                                        <div className="relative rounded-lg overflow-hidden">
+                                            <div className="aspect-video bg-gray-900 relative" style={{ height: '180px' }}>
+                                                <iframe
+                                                    src={`https://www.youtube.com/embed/${video.id}`}
+                                                    title={video.title}
+                                                    className="w-full h-full"
+                                                    frameBorder="0"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allowFullScreen
+                                                ></iframe>
+                                            </div>
+                                        </div>
+                                        <div className="mt-2">
+                                            <h4 className="font-semibold text-gray-900 text-base mb-1">
+                                                {video.title}
+                                            </h4>
+                                            <p className="text-gray-600 text-sm">
+                                                {video.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Prerequisites */}
-                    <div>
-                        <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Prerequisites</h3>
-                        <div className="grid grid-cols-1 gap-3">
+                    <div className="mb-8">
+                        <h3 className="text-xl font-bold mb-4">Prerequisites</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {courseDetails.prerequisites.map((prereq, index) => {
                                 const IconComponent = prereq.icon;
                                 return (
                                     <div
                                         key={index}
-                                        className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors bg-gray-50/50"
+                                        className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 transition-colors"
                                     >
                                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${prereq.color} flex-shrink-0`}>
                                             <IconComponent className="w-5 h-5" />
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="font-medium text-gray-900 text-sm md:text-base">
+                                        <div>
+                                            <h4 className="font-semibold text-gray-900 text-base mb-1">
                                                 {prereq.name}
                                             </h4>
-                                            <p className="text-xs md:text-sm text-gray-600 mt-0.5">
+                                            <p className="text-gray-600 text-sm">
                                                 {prereq.description}
                                             </p>
                                         </div>
@@ -243,24 +309,24 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
 
                     {/* Add Ons */}
                     {courseDetails.addOns && courseDetails.addOns.length > 0 && (
-                        <div>
-                            <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Add Ons</h3>
-                            <div className="grid grid-cols-1 gap-3">
+                        <div className="mb-8">
+                            <h3 className="text-xl font-bold mb-4">Add Ons</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {courseDetails.addOns.map((addon, index) => {
                                     const IconComponent = addon.icon;
                                     return (
                                         <div
                                             key={index}
-                                            className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors bg-gray-50/50"
+                                            className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 transition-colors"
                                         >
                                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${addon.color} flex-shrink-0`}>
                                                 <IconComponent className="w-5 h-5" />
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="font-medium text-gray-900 text-sm md:text-base">
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900 text-base mb-1">
                                                     {addon.name}
                                                 </h4>
-                                                <p className="text-xs md:text-sm text-gray-600 mt-0.5">
+                                                <p className="text-gray-600 text-sm">
                                                     {addon.description}
                                                 </p>
                                             </div>
@@ -272,39 +338,39 @@ const CourseDetailsModal = ({ isOpen, onClose, course }: CourseDetailsModalProps
                     )}
 
                     {/* Course Curriculum */}
-                    <div>
-                        <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">Course Curriculum</h3>
+                    <div className="mb-8">
+                        <h3 className="text-xl font-bold mb-4">Course Curriculum</h3>
                         <div className="space-y-2">
                             {courseDetails.curriculum.map((module, index) => (
-                                <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
+                                <div key={index} className="bg-gray-50 rounded-lg overflow-hidden hover:bg-gray-100 transition-colors">
                                     {/* Curriculum Header - Clickable */}
                                     <div
-                                        className="flex items-center justify-between p-3 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                                        className="flex items-center justify-between p-4 cursor-pointer"
                                         onClick={() => toggleSection(index)}
                                     >
                                         <div className="flex items-center justify-between w-full">
-                                            <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-                                                <span className="font-medium text-gray-900 text-sm md:text-base">{module.week}</span>
-                                                <span className="font-medium text-gray-700 text-xs md:text-sm">
+                                            <div className="flex items-center gap-3">
+                                                <span className="font-bold text-gray-900 text-base">{module.week}</span>
+                                                <span className="font-medium text-gray-700 text-sm">
                                                     {module.title}
                                                 </span>
                                             </div>
                                             {expandedSections.includes(index) ? (
-                                                <ChevronUp className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                                                <ChevronUp className="h-5 w-5 text-gray-500 flex-shrink-0" />
                                             ) : (
-                                                <ChevronDown className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                                                <ChevronDown className="h-5 w-5 text-gray-500 flex-shrink-0" />
                                             )}
                                         </div>
                                     </div>
 
                                     {/* Curriculum Content - Expandable */}
                                     {expandedSections.includes(index) && (
-                                        <div className="px-3 md:px-4 pb-3 md:pb-4 border-t border-gray-100">
-                                            <ul className="space-y-1.5 mt-2 md:mt-3">
+                                        <div className="px-4 pb-4">
+                                            <ul className="space-y-2 mt-2">
                                                 {module.topics.map((topic, topicIndex) => (
-                                                    <li key={topicIndex} className="text-xs md:text-sm text-gray-600 flex items-start gap-2">
-                                                        <span className="text-theme-primary mt-0.5 flex-shrink-0">•</span>
-                                                        <span>{topic}</span>
+                                                    <li key={topicIndex} className="text-gray-600 flex items-start gap-2">
+                                                        <span className="text-theme-primary mt-1 flex-shrink-0">•</span>
+                                                        <span className="text-sm">{topic}</span>
                                                     </li>
                                                 ))}
                                             </ul>

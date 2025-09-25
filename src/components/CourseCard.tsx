@@ -96,15 +96,15 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
 
   const handleEnrollClick = () => {
     if (course.price === 0) {
-      // For free courses, no authentication needed
-      // You can add your free course enrollment logic here
+      // For free courses, open the course details modal
+      setIsModalOpen(true);
       return;
     }
     
     // For paid courses, check if user has active subscription
     if (hasActiveSubscription) {
-      // User has premium subscription, can access all courses
-      navigate(`/course/${course.id}`);
+      // User has premium subscription, open the course details modal
+      setIsModalOpen(true);
       return;
     }
     

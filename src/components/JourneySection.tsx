@@ -1,4 +1,4 @@
-import { Calendar, Code, Briefcase, Target, Building2, GraduationCap } from "lucide-react";
+import { Target, Building2, GraduationCap } from "lucide-react";
 
 const JourneySection = () => {
   const months = [

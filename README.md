@@ -1,73 +1,204 @@
-# Welcome to your Lovable project
+# AI CareerX - Knowledge Pathways Plus
 
-## Project info
+A comprehensive online learning platform built with React, TypeScript, and Firebase, offering AI and programming courses with integrated payment processing and admin management.
 
-**URL**: https://lovable.dev/projects/18db4a19-5327-406f-bc6a-cf00c26176e0
+## 🚀 Features
 
-## How can I edit this code?
+### Core Features
+- **Course Management**: Browse and enroll in AI and programming courses
+- **User Authentication**: Secure login/signup with Google OAuth
+- **Payment Processing**: UPI payment integration with verification
+- **Admin Dashboard**: Complete admin panel for managing users, payments, and courses
+- **Course Videos**: Embedded YouTube video integration
+- **Responsive Design**: Mobile-first, modern UI with Tailwind CSS
 
-There are several ways of editing your application.
+### Technical Features
+- **Firebase Integration**: Authentication, Firestore database, and hosting
+- **TypeScript**: Full type safety and better development experience
+- **Modern UI**: Shadcn/ui components with custom styling
+- **Environment Configuration**: Smart API URL detection for dev/production
+- **Real-time Updates**: Live data synchronization with Firestore
 
-**Use Lovable**
+## 🛠️ Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/18db4a19-5327-406f-bc6a-cf00c26176e0) and start prompting.
+- **Frontend**: React 18, TypeScript, Vite
+- **UI Library**: Tailwind CSS, Shadcn/ui
+- **Backend**: Firebase (Authentication, Firestore, Hosting)
+- **Payment**: UPI integration with verification system
+- **Deployment**: Firebase Hosting
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📁 Project Structure
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # Shadcn/ui components
+│   ├── CourseCard.tsx  # Course display component
+│   └── ...
+├── contexts/           # React contexts
+│   ├── AuthContext.tsx # Authentication state
+│   └── UserRoleContext.tsx # User role management
+├── hooks/              # Custom React hooks
+├── lib/                # Utility libraries
+│   ├── firebase.ts     # Firebase configuration
+│   └── paymentService.ts # Payment operations
+├── pages/              # Page components
+│   ├── AllCourses.tsx
+│   ├── SignIn.tsx
+│   └── ...
+└── config/             # Configuration files
+    └── api.ts          # API configuration
 ```
 
-**Edit a file directly in GitHub**
+## 🚀 Getting Started
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Firebase project
 
-**Use GitHub Codespaces**
+### Installation
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd knowledge-pathways-plus
+   ```
 
-## What technologies are used for this project?
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-This project is built with:
+3. **Configure Firebase**
+   - Create a Firebase project
+   - Enable Authentication (Email/Password, Google)
+   - Create Firestore database
+   - Update `src/lib/firebase.ts` with your config
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+4. **Set up environment variables**
+   Create `.env.local`:
+   ```bash
+   VITE_API_BASE_URL=http://localhost:8000
+   ```
 
-## How can I deploy this project?
+5. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-Simply open [Lovable](https://lovable.dev/projects/18db4a19-5327-406f-bc6a-cf00c26176e0) and click on Share -> Publish.
+## 🔧 Configuration
 
-## Can I connect a custom domain to my Lovable project?
+### Firebase Setup
+1. **Authentication**: Enable Email/Password and Google providers
+2. **Firestore**: Set up collections: `adminUsers`, `payments`, `userPlans`
+3. **Security Rules**: Deploy `firestore.rules`
+4. **Hosting**: Configure for `dist` directory
 
-Yes, you can!
+### API Configuration
+- **Development**: Uses `http://localhost:8000` by default
+- **Production**: Set `VITE_API_BASE_URL` environment variable
+- **Smart Detection**: Automatically detects environment
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Admin Setup
+1. **Create admin user** in Firestore `adminUsers` collection:
+   ```json
+   {
+     "email": "admin@example.com",
+     "role": "admin",
+     "name": "Admin User",
+     "isActive": true
+   }
+   ```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 📦 Deployment
+
+### Firebase Hosting
+1. **Build the project**
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy to Firebase**
+   ```bash
+   firebase deploy
+   ```
+
+3. **Set production API URL**
+   - Update `src/config/api.ts` with production URL
+   - Or set `VITE_API_BASE_URL` environment variable
+
+### Environment Variables
+- **Development**: Automatic localhost detection
+- **Production**: Set `VITE_API_BASE_URL` in deployment platform
+
+## 🔐 Security
+
+### Firebase Security Rules
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+### API Key Security
+- Firebase API keys are public by design
+- Security is handled by Firestore rules and authentication
+- No sensitive data in client-side code
+
+## 📊 Admin Features
+
+### Payment Management
+- View all payment submissions
+- Verify/reject payments
+- Add verified payments to user plans
+- Send invoices via API integration
+
+### User Management
+- View user plans and subscriptions
+- Manage course access
+- Track user activity
+
+### Analytics
+- Payment statistics
+- User enrollment data
+- Course popularity metrics
+
+## 🎯 API Integration
+
+### Send Invoice API
+- **Endpoint**: `/automation/send-invoice`
+- **Method**: POST
+- **Body**: `{"transaction_id": "123456"}`
+- **Environment**: Auto-detects localhost vs production
+
+## 🐛 Troubleshooting
+
+### Common Issues
+1. **Admin dashboard not showing**: Check admin user exists in Firestore
+2. **Payment verification fails**: Check Firestore security rules
+3. **API calls fail**: Verify API URL configuration
+4. **Authentication errors**: Check Firebase configuration
+
+### Debug Steps
+1. Check browser console for errors
+2. Verify Firebase configuration
+3. Check Firestore security rules
+4. Confirm admin user setup
+
+## 📝 License
+
+This project is proprietary software. All rights reserved.
+
+## 🤝 Support
+
+For technical support or questions, please contact the development team.
+
+---
+
+**Built with ❤️ for AI CareerX**

@@ -10,16 +10,13 @@ import Pricing from "./pages/Pricing";
 import AllBlogs from "./pages/AllBlogs";
 import AllCourses from "./pages/AllCourses";
 import PremiumDetails from "./pages/PremiumDetails";
-import CourseDetail from "./pages/CourseDetail";
 import BlogDetail from "./pages/BlogDetail";
 import Contact from "./pages/Contact";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
 import AccountSettings from "./pages/AccountSettings";
-import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
 import WhatsAppChat from "./components/WhatsAppChat";
 import FloatingBookingButton from "./components/FloatingBookingButton";
 import ScrollToTop from "./components/ScrollToTop";
@@ -45,14 +42,12 @@ function App() {
                 <Route path="/blogs" element={<AllBlogs />} />
                 <Route path="/courses" element={<AllCourses />} />
                 <Route path="/premium/:type/:id" element={<PremiumDetails />} />
-                <Route path="/course/:id" element={<CourseDetail />} />
                 <Route path="/blog/:id" element={<BlogDetail />} />
                 <Route path="/contact" element={<Contact />} />
                 
                 {/* Protected Routes */}
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
-                <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               </Routes>
               
               {/* Global Components */}
