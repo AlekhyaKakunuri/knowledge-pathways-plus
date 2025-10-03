@@ -14,7 +14,6 @@ const educourseConfig = {
 };
 
 function updateFirebaseConfig() {
-  console.log('🔄 Updating Firebase configuration...');
   
   const firebaseConfigPath = 'src/lib/firebase.ts';
   
@@ -45,11 +44,9 @@ export const db = getFirestore(app);
 export default app;`;
 
   fs.writeFileSync(firebaseConfigPath, newConfig);
-  console.log('✅ Updated src/lib/firebase.ts');
 }
 
 function updateFirebaseJson() {
-  console.log('🔄 Updating firebase.json...');
   
   const firebaseJson = {
     "firestore": {
@@ -72,11 +69,9 @@ function updateFirebaseJson() {
   };
   
   fs.writeFileSync('firebase.json', JSON.stringify(firebaseJson, null, 2));
-  console.log('✅ Updated firebase.json');
 }
 
 function updatePackageJson() {
-  console.log('🔄 Updating package.json...');
   
   const packageJsonPath = 'package.json';
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -91,11 +86,9 @@ function updatePackageJson() {
   packageJson.scripts['deploy:firestore'] = 'firebase deploy --only firestore';
   
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-  console.log('✅ Updated package.json');
 }
 
 function createEnvironmentFile() {
-  console.log('🔄 Creating .env file...');
   
   const envContent = `# EduCourse Project Environment Variables
 VITE_API_BASE_URL=https://api.educourse.com
@@ -104,17 +97,9 @@ VITE_FIREBASE_AUTH_DOMAIN=${educourseConfig.authDomain}
 `;
 
   fs.writeFileSync('.env', envContent);
-  console.log('✅ Created .env file');
 }
 
 function main() {
-  console.log('🚀 Starting configuration update for eduCourse project...');
-  console.log('');
-  console.log('⚠️  IMPORTANT: Before running this script, make sure you have:');
-  console.log('   1. Your eduCourse Firebase configuration');
-  console.log('   2. Updated the educourseConfig object in this script');
-  console.log('   3. Backed up your current configuration');
-  console.log('');
   
   // Uncomment these lines after updating the educourseConfig
   // updateFirebaseConfig();
@@ -122,13 +107,6 @@ function main() {
   // updatePackageJson();
   // createEnvironmentFile();
   
-  console.log('📋 Manual steps required:');
-  console.log('   1. Update educourseConfig in this script with your actual values');
-  console.log('   2. Uncomment the function calls above');
-  console.log('   3. Run: node update-to-educourse.js');
-  console.log('   4. Run: firebase use eduCourse-XXXXX');
-  console.log('   5. Run: npm run build');
-  console.log('   6. Run: firebase deploy');
 }
 
 main();

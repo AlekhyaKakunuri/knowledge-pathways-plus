@@ -2,95 +2,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import BlogCard from "./BlogCard";
-
-// Mock data for demonstration - updated with is_popular field
-const mockBlogs = [
-  {
-    id: "1",
-    title: "Getting Started with React Development",
-    excerpt: "Learn the fundamentals of React development including components, state management, and hooks. This comprehensive guide will take you from beginner to intermediate level.",
-    content: "Learn the fundamentals of React development including components, state management, and hooks. This comprehensive guide will take you from beginner to intermediate level.",
-    is_premium: false,
-    is_popular: true,
-    is_new: false,
-    created_at: "2024-01-15",
-    tags: ["React", "JavaScript", "Frontend"],
-    featured_image_url: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500&h=300&fit=crop"
-  },
-  {
-    id: "2",
-    title: "Advanced TypeScript Patterns",
-    excerpt: "Explore advanced TypeScript patterns and best practices for building scalable applications. Learn about generics, decorators, and advanced type manipulation.",
-    content: "Explore advanced TypeScript patterns and best practices for building scalable applications. Learn about generics, decorators, and advanced type manipulation.",
-    is_premium: true,
-    is_popular: false,
-    is_new: false,
-    created_at: "2024-01-10",
-    tags: ["TypeScript", "Advanced", "Programming"],
-    featured_image_url: "https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop"
-  },
-  {
-    id: "3",
-    title: "Building REST APIs with Node.js",
-    excerpt: "Master the art of building robust REST APIs using Node.js and Express. Learn about authentication, validation, and best practices for production deployment.",
-    content: "Master the art of building robust REST APIs using Node.js and Express. Learn about authentication, validation, and best practices for production deployment.",
-    is_premium: false,
-    is_popular: false,
-    is_new: true,
-    created_at: "2024-01-20",
-    tags: ["Node.js", "API", "Backend"],
-    featured_image_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&h=300&fit=crop"
-  },
-  {
-    id: "4",
-    title: "Machine Learning Fundamentals",
-    excerpt: "Dive into the world of machine learning with this comprehensive guide covering algorithms, data preprocessing, and model evaluation.",
-    content: "Dive into the world of machine learning with this comprehensive guide covering algorithms, data preprocessing, and model evaluation.",
-    is_premium: true,
-    is_popular: true,
-    is_new: false,
-    created_at: "2024-01-12",
-    tags: ["Machine Learning", "AI", "Python"],
-    featured_image_url: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=500&h=300&fit=crop"
-  },
-  {
-    id: "5",
-    title: "CSS Grid Layout Mastery",
-    excerpt: "Learn how to create complex layouts with CSS Grid. This free guide covers everything from basic concepts to advanced techniques.",
-    content: "Learn how to create complex layouts with CSS Grid. This free guide covers everything from basic concepts to advanced techniques.",
-    is_premium: false,
-    is_popular: false,
-    is_new: true,
-    created_at: "2024-01-22",
-    tags: ["CSS", "Frontend", "Layout"],
-    featured_image_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=300&fit=crop"
-  },
-  {
-    id: "6",
-    title: "Docker for Developers",
-    excerpt: "Master containerization with Docker. Learn how to build, deploy, and manage applications using Docker containers.",
-    content: "Master containerization with Docker. Learn how to build, deploy, and manage applications using Docker containers.",
-    is_premium: true,
-    is_popular: false,
-    is_new: true,
-    created_at: "2024-01-25",
-    tags: ["Docker", "DevOps", "Containers"],
-    featured_image_url: "https://images.unsplash.com/photo-1605745341112-85968b19335b?w=500&h=300&fit=crop"
-  }
-];
+import { useData } from "@/contexts/DataContext";
+import { Lock } from "lucide-react";
 
 const PopularBlogsSection = () => {
-  const [blogs, setBlogs] = useState(mockBlogs);
-  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+  const { getPopularBlogs, getBlogs, state } = useData();
+  
+  const blogs = getPopularBlogs(3);
+  const allBlogs = getBlogs();
+  const loading = state.loading.blogs;
 
-  useEffect(() => {
-    // Simulate loading delay
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  }, []);
 
   if (loading) {
     return (
@@ -122,9 +46,9 @@ const PopularBlogsSection = () => {
     );
   }
 
-  // Show only first 3 blogs
-  const displayBlogs = blogs.slice(0, 3);
-  const hasMoreBlogs = blogs.length > 3;
+  // Show only first 3 blogs, fallback to recent blogs if no popular ones
+  const displayBlogs = blogs.length > 0 ? blogs.slice(0, 3) : allBlogs.slice(0, 3);
+  const hasMoreBlogs = allBlogs.length > 3;
 
   return (
     <section className="py-8 md:py-12 lg:py-16 bg-gray-50 px-4">
@@ -140,14 +64,56 @@ const PopularBlogsSection = () => {
           )}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {displayBlogs.map((blog) => (
-            <BlogCard 
-              key={blog.id} 
-              blog={blog} 
-            />
-          ))}
-        </div>
+        {displayBlogs.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <svg className="h-16 w-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No articles yet</h3>
+            <p className="text-gray-500 mb-6">
+              We're working on creating amazing content for you. Check back soon!
+            </p>
+            <Link to="/blogs">
+              <Button variant="outline" size="lg">
+                Explore All Articles
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {displayBlogs.map((blog) => (
+              <div key={blog.id} className="relative">
+                <BlogCard
+                  blog={{
+                    id: blog.id,
+                    title: blog.title,
+                    excerpt: blog.excerpt,
+                    content: blog.content_html,
+                    is_premium: blog.access_type === 'premium',
+                    is_popular: blog.labels?.includes('Most Popular') || blog.labels?.includes('popular') || false,
+                    tags: blog.tags || [],
+                    labels: blog.labels || [],
+                    access_type: blog.access_type,
+                    thumbnail_url: blog.thumbnail_url,
+                    featured_image_url: blog.thumbnail_url || blog.cover_url || 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop'
+                  }}
+                />
+                
+                {/* Premium Lock Overlay */}
+                {blog.access_type === 'premium' && !currentUser && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <Lock className="h-6 w-6 mx-auto mb-1" />
+                      <p className="text-xs font-medium">Premium</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

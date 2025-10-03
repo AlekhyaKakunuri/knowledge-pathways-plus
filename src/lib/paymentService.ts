@@ -2,30 +2,50 @@ import { collection, addDoc, serverTimestamp, doc, updateDoc, getDoc } from 'fir
 import { db } from './firebase';
 
 export interface PaymentData {
-  transactionId: string;
-  planName: string;
-  amount: string;
-  userEmail?: string;
-  userName?: string;
-  paymentScreenshot?: string;
+  payment_id: string;
+  user_id: string;
+  user_email: string;
+  plan_name: string;
+  amount: number;
+  payment_method: string;
   status: 'pending' | 'verified' | 'rejected';
-  createdAt: Date;
-  verifiedAt?: Date;
-  notes?: string;
+  created_at: any; // Firestore timestamp
+  updated_at: any; // Firestore timestamp
+  utr_number: string;
+  payment_screenshot_url: string;
+  remarks: string;
+  verified_at?: any; // Firestore timestamp
+  verified_by: string;
 }
 
-export const savePaymentDetails = async (paymentData: Omit<PaymentData, 'createdAt' | 'status'>) => {
+export const savePaymentDetails = async (paymentData: {
+  planName: string;
+  amount: number;
+  userEmail: string;
+  userName: string;
+  userId: string; // Firebase localId
+  transactionId: string;
+  paymentScreenshot?: string;
+}) => {
   try {
-    // Clean the data to remove undefined values
+    // Generate a unique payment ID
+    const paymentId = `pay_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    
     const cleanData = {
-      transactionId: paymentData.transactionId,
-      planName: paymentData.planName,
+      payment_id: paymentId,
+      user_id: paymentData.userId, // Using Firebase localId
+      user_email: paymentData.userEmail,
+      plan_name: paymentData.planName,
       amount: paymentData.amount,
-      userEmail: paymentData.userEmail || '',
-      userName: paymentData.userName || '',
-      paymentScreenshot: paymentData.paymentScreenshot || '',
+      payment_method: 'UPI',
       status: 'pending',
-      createdAt: serverTimestamp(),
+      created_at: serverTimestamp(),
+      updated_at: serverTimestamp(),
+      utr_number: paymentData.transactionId,
+      payment_screenshot_url: paymentData.paymentScreenshot || '',
+      remarks: `Payment submitted by ${paymentData.userEmail}`,
+      verified_at: null,
+      verified_by: ''
     };
 
     const docRef = await addDoc(collection(db, 'payments'), cleanData);
@@ -36,17 +56,19 @@ export const savePaymentDetails = async (paymentData: Omit<PaymentData, 'created
   }
 };
 
-export const updatePaymentStatus = async (paymentId: string, status: 'verified' | 'rejected', notes?: string) => {
+export const updatePaymentStatus = async (paymentId: string, status: 'verified' | 'rejected', verifiedBy: string, remarks?: string) => {
   try {
     const paymentRef = doc(db, 'payments', paymentId);
     
     const updateData: any = {
       status: status,
-      verifiedAt: serverTimestamp(),
+      updated_at: serverTimestamp(),
+      verified_at: serverTimestamp(),
+      verified_by: verifiedBy,
     };
     
-    if (notes) {
-      updateData.notes = notes;
+    if (remarks) {
+      updateData.remarks = remarks;
     }
     
     await updateDoc(paymentRef, updateData);
@@ -67,7 +89,7 @@ const createUserPlanFromPayment = async (paymentId: string) => {
   try {
     // Get the payment details
     const paymentRef = doc(db, 'payments', paymentId);
-    const paymentDoc = await paymentRef.get();
+    const paymentDoc = await getDoc(paymentRef);
     
     if (!paymentDoc.exists()) {
       return;
@@ -79,40 +101,57 @@ const createUserPlanFromPayment = async (paymentId: string) => {
     const now = new Date();
     let expiryDate = new Date();
     
-    // Check plan name for explicit period indicators
-    if (paymentData.planName.toLowerCase().includes('monthly')) {
+    // Check plan name to determine expiry
+    const planName = paymentData.plan_name || '';
+    
+    if (planName === 'PREMIUM_MONTHLY') {
+      // Monthly Premium plan - 1 month access
       expiryDate.setMonth(expiryDate.getMonth() + 1);
-    } else if (paymentData.planName.toLowerCase().includes('yearly') || paymentData.planName.toLowerCase().includes('year')) {
+    } else if (planName === 'PREMIUM_YEARLY') {
+      // Yearly Premium plan - 1 year access
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-    } else if (paymentData.planName.toLowerCase().includes('premium')) {
-      // For Premium plans, determine period based on amount
-      const amount = parseInt(paymentData.amount);
-      if (amount === 449) {
-        // Monthly Premium plan
-        expiryDate.setMonth(expiryDate.getMonth() + 1);
-      } else if (amount === 4308) {
-        // Yearly Premium plan
-        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-      } else {
-        // Default to 1 year for other Premium amounts
-        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-      }
-    } else if (paymentData.planName.toLowerCase().includes('ai fundamentals')) {
-      // AI Fundamentals course - 1 year access
+    } else if (planName === 'PREMIUM_GENAI_DEV_01') {
+      // GenAI Developer Course - lifetime access (set to 10 years)
+      expiryDate.setFullYear(expiryDate.getFullYear() + 10);
+    } else if (planName === 'FREE') {
+      // Free plan - 1 year access
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
     } else {
-      // Default to 1 year for other plans
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      // Fallback to plan name for explicit period indicators
+      if (planName.toLowerCase().includes('monthly')) {
+        expiryDate.setMonth(expiryDate.getMonth() + 1);
+      } else if (planName.toLowerCase().includes('yearly') || planName.toLowerCase().includes('year')) {
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      } else if (planName.toLowerCase().includes('premium')) {
+        // For Premium plans, determine period based on amount
+        const amount = paymentData.amount;
+        if (amount === 449) {
+          // Monthly Premium plan
+          expiryDate.setMonth(expiryDate.getMonth() + 1);
+        } else if (amount === 4308) {
+          // Yearly Premium plan
+          expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        } else {
+          // Default to 1 year for other Premium amounts
+          expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        }
+      } else if (planName.toLowerCase().includes('ai fundamentals')) {
+        // AI Fundamentals course - 1 year access
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      } else {
+        // Default to 1 year for other plans
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      }
     }
     
     // Create user plan
     const userPlanData = {
-      userId: paymentData.userEmail || '',
-      planName: paymentData.planName,
+      userId: paymentData.user_email || '',
+      planName: paymentData.plan_name,
       status: 'verified',
       startDate: now,
       expiryDate: expiryDate,
-      paymentId: paymentData.transactionId || paymentId,
+      paymentId: paymentData.payment_id || paymentId,
       amount: paymentData.amount,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
@@ -121,5 +160,47 @@ const createUserPlanFromPayment = async (paymentId: string) => {
     const userPlanRef = await addDoc(collection(db, 'userPlans'), userPlanData);
     
   } catch (error) {
+  }
+};
+
+// Create course enrollment payment
+export const createCourseEnrollmentPayment = async (courseData: {
+  courseId: string;
+  courseTitle: string;
+  planName: string;
+  amount: number;
+  userEmail: string;
+  userName: string;
+  userId: string; // Firebase localId
+  transactionId?: string;
+  utrNumber?: string;
+  paymentScreenshot?: string;
+}) => {
+  try {
+    // Generate a unique payment ID
+    const paymentId = `pay_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    
+    const paymentData = {
+      payment_id: paymentId,
+      user_id: courseData.userId, // Using Firebase localId
+      user_email: courseData.userEmail,
+      plan_name: courseData.planName,
+      amount: courseData.amount,
+      payment_method: 'UPI',
+      status: 'pending',
+      created_at: serverTimestamp(),
+      updated_at: serverTimestamp(),
+      utr_number: courseData.utrNumber || courseData.transactionId || '', // Use UTR number or transaction ID
+      payment_screenshot_url: courseData.paymentScreenshot || '', // Will be filled when user submits payment
+      remarks: `Course enrollment payment submitted by ${courseData.userEmail}`, // Will be filled by admin
+      verified_at: null,
+      verified_by: ''
+    };
+
+    const docRef = await addDoc(collection(db, 'payments'), paymentData);
+    
+    return { success: true, paymentId: docRef.id, paymentData };
+  } catch (error) {
+    return { success: false, error: error };
   }
 };

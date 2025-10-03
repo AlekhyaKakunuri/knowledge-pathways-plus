@@ -24,7 +24,6 @@ interface AuthContextType {
   signup: (email: string, password: string, displayName?: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
-
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateUserProfile: (displayName?: string, photoURL?: string) => Promise<void>;
@@ -32,6 +31,7 @@ interface AuthContextType {
   deleteAccount: (password: string) => Promise<void>;
   sendVerificationEmail: () => Promise<void>;
   reauthenticate: (password: string) => Promise<void>;
+  isEmailVerified: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -62,6 +62,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await updateProfile(userCredential.user, {
           displayName: displayName
         });
+      }
+      
+      // Send email verification
+      if (userCredential.user) {
+        await sendEmailVerification(userCredential.user);
       }
     } catch (error: any) {
       // Handle Firebase configuration errors
@@ -210,18 +215,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const isEmailVerified = (): boolean => {
+    return currentUser?.emailVerified || false;
+  };
+
   useEffect(() => {
+    // Set a timeout to ensure the app renders even if auth takes time
+    const timeout = setTimeout(() => {
+      setAuthInitialized(true);
+    }, 1000);
+
     try {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         setCurrentUser(user);
         setLoading(false);
         setAuthInitialized(true);
+        clearTimeout(timeout);
       });
 
-      return unsubscribe;
+      return () => {
+        clearTimeout(timeout);
+        unsubscribe();
+      };
     } catch (error) {
       setLoading(false);
       setAuthInitialized(true);
+      clearTimeout(timeout);
     }
   }, []);
 
@@ -231,14 +250,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signup,
     login,
     loginWithGoogle,
-
     logout,
     resetPassword,
     updateUserProfile,
     changePassword,
     deleteAccount,
     sendVerificationEmail,
-    reauthenticate
+    reauthenticate,
+    isEmailVerified
   };
 
   return (

@@ -25,49 +25,8 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-
-// Mock course data
-const courses = [
-  {
-    id: 1,
-    title: "Python Programming Mastery",
-    description: "Learn Python from basics to advanced with real-world projects",
-    price: 0,
-    originalPrice: 299,
-    duration: "8 weeks",
-    level: "Beginner",
-    icon: Code2,
-    color: "bg-blue-500",
-    category: "programming",
-    students: 1250,
-    rating: 4.8,
-    lessons: 45,
-    instructor: "John Smith",
-    isFree: true,
-    isPremium: false,
-    isMostPopular: false
-  },
-  {
-    id: 2,
-    title: "AI Fundamentals",
-    description: "Master artificial intelligence concepts and machine learning",
-    price: 30000,
-    originalPrice: 35000,
-    duration: "8 weeks",
-    level: "Intermediate",
-    icon: Brain,
-    color: "bg-purple-500",
-    category: "ai",
-    students: 890,
-    rating: 4.9,
-    lessons: 32,
-    instructor: "Dr. Sarah Chen",
-    isFree: false,
-    isPremium: true,
-    isMostPopular: true
-  }
-];
+import { useData } from "@/contexts/DataContext";
+import { Course } from "@/lib/courseService";
 
 const features = [
   {
@@ -131,42 +90,15 @@ const benefits = [
   }
 ];
 
-// FAQ data
-const faqs = [
+// Default FAQ data (fallback)
+const defaultFaqs = [
   {
-    category: "Course Related",
+    category: "General",
     questions: [
       {
         question: "Is this course free or premium?",
         answer: "We offer both free and premium courses. Free courses provide basic content, while premium courses include comprehensive materials, live sessions, and placement support."
       },
-      {
-        question: "Do I need to purchase premium access for blogs and resources?",
-        answer: "Premium access gives you unlimited access to all blogs, downloadable resources, and exclusive content. Free users have limited access."
-      }
-    ]
-  },
-  {
-    category: "Placement & Career Support",
-    questions: [
-      {
-        question: "Will I get guaranteed placement after completing the course?",
-        answer: "While we don't guarantee placement, we provide comprehensive career support including resume building, interview preparation, and job placement assistance through our network of partner companies."
-      }
-    ]
-  },
-  {
-    category: "Learning Experience",
-    questions: [
-      {
-        question: "What will I learn in this course?",
-        answer: "Our courses cover industry-relevant topics with hands-on projects, real-world case studies, and practical applications. Each course includes theoretical concepts and practical implementation."
-      }
-    ]
-  },
-  {
-    category: "Support & Access",
-    questions: [
       {
         question: "How can I clear my doubts during the course?",
         answer: "We provide multiple support channels including live Q&A sessions, discussion forums, dedicated mentor support, and 24/7 community access for all your learning needs."
@@ -177,7 +109,10 @@ const faqs = [
 
 const AllCourses = () => {
   const [expandedFAQs, setExpandedFAQs] = useState<{ [key: string]: boolean }>({});
-
+  const { getCourses, state } = useData();
+  
+  const courses = getCourses();
+  const loading = state.loading.courses;
 
   const toggleFAQ = (faqKey: string) => {
     setExpandedFAQs(prev => ({
@@ -204,16 +139,31 @@ const AllCourses = () => {
             </div>
 
             {/* Courses Grid */}
-            <div className="flex flex-wrap justify-center gap-8 mb-16">
-              {courses.map((course) => (
-                <div key={course.id} className="w-full max-w-sm">
-                  <CourseCard
-                    course={course}
-                    showLearnMore={true}
-                  />
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <span className="ml-3 text-lg">Loading courses...</span>
+              </div>
+            ) : courses.length > 0 ? (
+              <div className="flex flex-wrap justify-center gap-8 mb-16">
+                {courses.map((course) => (
+                  <div key={course.id} className="w-full max-w-sm">
+                    <CourseCard
+                      course={course}
+                      showLearnMore={true}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">No Courses Found</h3>
+                <p className="text-gray-600 mb-6">We're working on adding new courses. Check back soon!</p>
+                <Button onClick={() => window.location.reload()}>
+                  Refresh Page
+                </Button>
+              </div>
+            )}
           </div>
         </section>
 
@@ -270,35 +220,75 @@ const AllCourses = () => {
           <div className="container px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Get answers to common questions about our courses and learning platform
+              </p>
             </div>
 
-            <div className="max-w-3xl mx-auto space-y-4">
-              {faqs.map((category, categoryIndex) =>
-                category.questions.map((faq, faqIndex) => {
-                  const faqKey = `${categoryIndex}-${faqIndex}`;
-                  const isExpanded = expandedFAQs[faqKey];
-
-                  return (
-                    <Card key={faqKey} className="p-6">
-                      <div
-                        className="flex items-center justify-between cursor-pointer"
-                        onClick={() => toggleFAQ(faqKey)}
-                      >
-                        <h3 className="text-lg font-semibold text-theme-primary">
-                          {faq.question}
-                        </h3>
-                        {isExpanded ? (
-                          <ChevronUp className="h-5 w-5 text-gray-500" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-500" />
-                        )}
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* Course-specific FAQs */}
+              {courses.length > 0 && courses.some(course => course.faqs && course.faqs.length > 0) ? (
+                courses.map((course, courseIndex) => 
+                  course.faqs && course.faqs.length > 0 ? (
+                    <div key={courseIndex} className="mb-8">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-4">{course.title} - FAQs</h3>
+                      <div className="space-y-4">
+                        {course.faqs.map((faq, faqIndex) => {
+                          const faqKey = `course-${courseIndex}-${faqIndex}`;
+                          const isExpanded = expandedFAQs[faqKey];
+                          return (
+                            <Card key={faqKey} className="p-6">
+                              <div
+                                className="flex items-center justify-between cursor-pointer"
+                                onClick={() => toggleFAQ(faqKey)}
+                              >
+                                <h4 className="text-lg font-semibold text-theme-primary">
+                                  {faq.question}
+                                </h4>
+                                {isExpanded ? (
+                                  <ChevronUp className="h-5 w-5 text-gray-500" />
+                                ) : (
+                                  <ChevronDown className="h-5 w-5 text-gray-500" />
+                                )}
+                              </div>
+                              {isExpanded && (
+                                <p className="text-gray-600 mt-4">{faq.answer}</p>
+                              )}
+                            </Card>
+                          );
+                        })}
                       </div>
-                      {isExpanded && (
-                        <p className="text-gray-600 mt-4">{faq.answer}</p>
-                      )}
-                    </Card>
-                  );
-                })
+                    </div>
+                  ) : null
+                )
+              ) : (
+                /* Fallback to default FAQs */
+                defaultFaqs.map((category, categoryIndex) =>
+                  category.questions.map((faq, faqIndex) => {
+                    const faqKey = `default-${categoryIndex}-${faqIndex}`;
+                    const isExpanded = expandedFAQs[faqKey];
+                    return (
+                      <Card key={faqKey} className="p-6">
+                        <div
+                          className="flex items-center justify-between cursor-pointer"
+                          onClick={() => toggleFAQ(faqKey)}
+                        >
+                          <h3 className="text-lg font-semibold text-theme-primary">
+                            {faq.question}
+                          </h3>
+                          {isExpanded ? (
+                            <ChevronUp className="h-5 w-5 text-gray-500" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-500" />
+                          )}
+                        </div>
+                        {isExpanded && (
+                          <p className="text-gray-600 mt-4">{faq.answer}</p>
+                        )}
+                      </Card>
+                    );
+                  })
+                )
               )}
             </div>
           </div>

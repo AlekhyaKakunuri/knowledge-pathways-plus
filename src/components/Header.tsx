@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen, Menu, User, LogOut } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
 
   const isActive = (path: string) => {
@@ -31,6 +32,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      navigate('/');
     } catch (error) {
     }
   };

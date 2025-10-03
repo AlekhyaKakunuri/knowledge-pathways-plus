@@ -6,51 +6,15 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import UPIPayment from "./UPIPayment";
 import CourseCard from "./CourseCard";
+import { useData } from "@/contexts/DataContext";
 
 const CoursesSection = () => {
   const [openUPI, setOpenUPI] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<any>(null);
-
-  const courses = [
-    {
-      id: 1,
-      title: "Python Programming Mastery",
-      description: "Learn Python from basics to advanced with real-world projects",
-      price: 0,
-      originalPrice: 299,
-      duration: "8 weeks",
-      level: "Beginner",
-      icon: Code,
-      color: "bg-blue-500",
-      category: "programming",
-      students: 1250,
-      rating: 4.8,
-      lessons: 45,
-      instructor: "John Smith",
-      isFree: true,
-      isPremium: false,
-      isMostPopular: false
-    },
-    {
-      id: 2,
-      title: "AI Fundamentals",
-      description: "Master artificial intelligence concepts and machine learning",
-      price: 30000,
-      originalPrice: 35000,
-      duration: "8 weeks",
-      level: "Intermediate",
-      icon: Brain,
-      color: "bg-purple-500",
-      category: "ai",
-      students: 890,
-      rating: 4.9,
-      lessons: 32,
-      instructor: "Dr. Sarah Chen",
-      isFree: false,
-      isPremium: true,
-      isMostPopular: true
-    }
-  ];
+  const { getCourses, state } = useData();
+  
+  const courses = getCourses();
+  const loading = state.loading.courses;
 
   // Show only first 3 courses
   const displayCourses = courses.slice(0, 3);
@@ -64,6 +28,7 @@ const CoursesSection = () => {
     // For free courses, they will navigate to the course detail page via Link
   };
 
+
   return (
     <section className="py-8 md:py-12 lg:py-16 bg-white px-4">
       <div className="container">
@@ -76,16 +41,28 @@ const CoursesSection = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-6 mb-6 md:mb-8">
-          {displayCourses.map((course) => (
-            <div key={course.id} className="w-full max-w-sm">
-              <CourseCard
-                course={course}
-                showLearnMore={false}
-              />
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <span className="ml-3 text-lg">Loading courses...</span>
+          </div>
+        ) : displayCourses.length > 0 ? (
+          <div className="flex flex-wrap justify-center gap-6 mb-6 md:mb-8">
+            {displayCourses.map((course) => (
+              <div key={course.id} className="w-full max-w-sm">
+                <CourseCard
+                  course={course}
+                  showLearnMore={false}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">No Courses Available</h3>
+            <p className="text-gray-600">We're working on adding new courses. Check back soon!</p>
+          </div>
+        )}
 
         {/* View All Button */}
         {hasMoreCourses && (
@@ -106,6 +83,7 @@ const CoursesSection = () => {
             name: selectedCourse.title,
             price: selectedCourse.currentPrice.replace('₹', ''),
             description: selectedCourse.description,
+            planCode: 'PREMIUM_GENAI_DEV_01',
             features: [
               "Full course access",
               "Downloadable resources",

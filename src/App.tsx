@@ -5,10 +5,13 @@ import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserRoleProvider } from "./contexts/UserRoleContext";
+import { DataProvider } from "./contexts/DataContext";
+import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import Index from "./pages/Index";
 import Pricing from "./pages/Pricing";
 import AllBlogs from "./pages/AllBlogs";
 import AllCourses from "./pages/AllCourses";
+import CourseDetail from "./pages/CourseDetail";
 import PremiumDetails from "./pages/PremiumDetails";
 import BlogDetail from "./pages/BlogDetail";
 import Contact from "./pages/Contact";
@@ -16,6 +19,7 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
 import AccountSettings from "./pages/AccountSettings";
+import SubscriptionDemo from "./pages/SubscriptionDemo";
 import ProtectedRoute from "./components/ProtectedRoute";
 import WhatsAppChat from "./components/WhatsAppChat";
 import FloatingBookingButton from "./components/FloatingBookingButton";
@@ -28,8 +32,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <UserRoleProvider>
-            <Router>
+          <SubscriptionProvider>
+            <UserRoleProvider>
+              <DataProvider>
+                <Router>
             <div className="min-h-screen bg-background">
               {/* Scroll to top on route change */}
               <ScrollToTop />
@@ -41,9 +47,11 @@ function App() {
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/blogs" element={<AllBlogs />} />
                 <Route path="/courses" element={<AllCourses />} />
+                <Route path="/course/:id" element={<CourseDetail />} />
                 <Route path="/premium/:type/:id" element={<PremiumDetails />} />
                 <Route path="/blog/:id" element={<BlogDetail />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/subscription-demo" element={<SubscriptionDemo />} />
                 
                 {/* Protected Routes */}
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
@@ -54,8 +62,10 @@ function App() {
               <WhatsAppChat />
               <FloatingBookingButton />
             </div>
-            </Router>
-          </UserRoleProvider>
+                </Router>
+              </DataProvider>
+            </UserRoleProvider>
+          </SubscriptionProvider>
         </AuthProvider>
         <Toaster />
         <SonnerToaster />

@@ -74,6 +74,7 @@ const PricingSection = () => {
       price: "0",
       period: "forever",
       description: "Perfect for getting started",
+      planCode: "FREE",
       features: [
         { text: "Access to 3 blog articles per month", included: true },
         { text: "Basic course materials", included: true },
@@ -85,24 +86,57 @@ const PricingSection = () => {
       popular: false
     },
     {
-      name: "Premium",
-      price: billingCycle === 'monthly' ? "449" : "4308",
-      period: billingCycle === 'monthly' ? "month" : "year",
-      description: "Unlock unlimited learning",
+      name: "Premium Monthly",
+      price: "449",
+      period: "month",
+      description: "Unlock unlimited learning monthly",
+      planCode: "PREMIUM_MONTHLY",
       features: [
         { text: "Unlimited access to all blog articles", included: true },
         { text: "Exclusive premium content", included: true },
         { text: "Community/forum access", included: true },
-        { text: "Priority support", included: true }
+        { text: "Priority support", included: true },
+        { text: "Monthly billing", included: true }
       ],
       buttonText: hasActiveSubscription ? "Active Plan" : "Go Premium",
       buttonVariant: hasActiveSubscription ? "secondary" : "default",
-      popular: true,
-      yearlyDiscount: billingCycle === 'yearly' ? "20% OFF" : null,
-      monthlyEquivalent: billingCycle === 'yearly' ? "359" : null,
+      popular: billingCycle === 'monthly',
+      isActive: hasActiveSubscription
+    },
+    {
+      name: "Premium Yearly",
+      price: "4308",
+      period: "year",
+      description: "Unlock unlimited learning yearly",
+      planCode: "PREMIUM_YEARLY",
+      features: [
+        { text: "Unlimited access to all blog articles", included: true },
+        { text: "Exclusive premium content", included: true },
+        { text: "Community/forum access", included: true },
+        { text: "Priority support", included: true },
+        { text: "20% savings vs monthly", included: true },
+        { text: "Yearly billing", included: true }
+      ],
+      buttonText: hasActiveSubscription ? "Active Plan" : "Go Premium",
+      buttonVariant: hasActiveSubscription ? "secondary" : "default",
+      popular: billingCycle === 'yearly',
+      yearlyDiscount: "20% OFF",
+      monthlyEquivalent: "359",
       isActive: hasActiveSubscription
     }
   ];
+
+  // Filter plans based on billing cycle
+  const filteredPlans = plans.filter(plan => {
+    if (plan.name === "Free" || plan.name === "GenAI Developer Course") {
+      return true; // Always show free and course plans
+    }
+    if (billingCycle === 'monthly') {
+      return plan.period === 'month';
+    } else {
+      return plan.period === 'year';
+    }
+  });
 
   const handleSelectPlan = (plan: any) => {
     if (plan.name === "Free") {
@@ -171,8 +205,8 @@ const PricingSection = () => {
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {plans.map((plan, index) => (
-            <div className="relative">
+          {filteredPlans.map((plan, index) => (
+            <div key={plan.planCode || plan.name} className="relative">
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                   <Badge className="bg-purple-500 text-white px-4 py-1 rounded-full text-sm font-medium">

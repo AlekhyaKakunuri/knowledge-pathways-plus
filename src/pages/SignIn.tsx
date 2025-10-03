@@ -18,7 +18,7 @@ const SignIn = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { login, loginWithGoogle, resetPassword } = useAuth();
+  const { login, loginWithGoogle, resetPassword, isEmailVerified } = useAuth();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,18 +26,28 @@ const SignIn = () => {
 
     try {
       await login(email, password);
-      toast({
-        title: "Sign in successful!",
-        description: "Welcome back to EduMentor!",
-      });
       
-      // Check if user was trying to access premium features
-      const selectedPlan = sessionStorage.getItem('selectedPlan');
-      if (selectedPlan) {
-        sessionStorage.removeItem('selectedPlan');
-        navigate("/pricing"); // Redirect back to pricing to complete purchase
+      // Check if email is verified
+      if (isEmailVerified()) {
+        toast({
+          title: "Sign in successful!",
+          description: "Welcome back to EduMentor!",
+        });
+        
+        // Check if user was trying to access premium features
+        const selectedPlan = sessionStorage.getItem('selectedPlan');
+        if (selectedPlan) {
+          sessionStorage.removeItem('selectedPlan');
+          navigate("/pricing"); // Redirect back to pricing to complete purchase
+        } else {
+          navigate("/"); // Redirect to home page
+        }
       } else {
-        navigate("/profile"); // Default redirect to profile page
+        toast({
+          title: "Email verification required",
+          description: "Please verify your email address to continue. You'll be redirected to verify your email.",
+        });
+        navigate("/contact"); // Redirect to contact page for email verification
       }
     } catch (error: any) {
       toast({
@@ -81,18 +91,27 @@ const SignIn = () => {
     try {
       await loginWithGoogle();
       
-      toast({
-        title: "Sign in successful!",
-        description: "Welcome to EduMentor!",
-      });
-      
-      // Check if user was trying to access premium features
-      const selectedPlan = sessionStorage.getItem('selectedPlan');
-      if (selectedPlan) {
-        sessionStorage.removeItem('selectedPlan');
-        navigate("/pricing");
+      // Check if email is verified (Google accounts are usually pre-verified)
+      if (isEmailVerified()) {
+        toast({
+          title: "Sign in successful!",
+          description: "Welcome to EduMentor!",
+        });
+        
+        // Check if user was trying to access premium features
+        const selectedPlan = sessionStorage.getItem('selectedPlan');
+        if (selectedPlan) {
+          sessionStorage.removeItem('selectedPlan');
+          navigate("/pricing");
+        } else {
+          navigate("/");
+        }
       } else {
-        navigate("/profile");
+        toast({
+          title: "Email verification required",
+          description: "Please verify your email address to continue. You'll be redirected to verify your email.",
+        });
+        navigate("/contact");
       }
     } catch (error: any) {
       toast({

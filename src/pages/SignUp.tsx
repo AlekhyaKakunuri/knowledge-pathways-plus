@@ -61,9 +61,9 @@ const SignUp = () => {
       await signup(email, password, fullName);
       toast({
         title: "Account created successfully!",
-        description: "Welcome to EduMentor! You can now sign in.",
+        description: "Please check your email and verify your account. You'll be redirected to verify your email.",
       });
-      navigate("/signin");
+      navigate("/contact");
     } catch (error: any) {
       toast({
         title: "Sign up failed",

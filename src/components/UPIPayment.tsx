@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { QrCode, CreditCard, CheckCircle, Clock, AlertCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { savePaymentDetails } from "@/lib/paymentService";
+import { savePaymentDetails, createCourseEnrollmentPayment } from "@/lib/paymentService";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface Plan {
@@ -16,6 +16,7 @@ interface Plan {
   price: string;
   description: string;
   features: string[];
+  planCode?: string;
 }
 
 interface UPIPaymentProps {
@@ -49,7 +50,7 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
     if (!transactionId.trim()) {
       toast({
         title: "Error",
-        description: "Please enter the transaction ID",
+        description: "Please enter the UPI transaction ID or UTR number",
         variant: "destructive"
       });
       return;
@@ -67,24 +68,52 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
     setIsSubmitting(true);
     
     try {
-      // Save payment details to Firebase
-      const result = await savePaymentDetails({
-        transactionId: transactionId.trim(),
-        planName: selectedPlan?.name || 'Unknown Plan',
-        amount: selectedPlan?.price || '0',
-        userEmail: currentUser?.email || 'guest@example.com',
-        userName: currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Guest User',
-        paymentScreenshot: paymentScreenshot.trim() || '',
-      });
-
-      if (result.success) {
-        setPaymentStep('confirmation');
-        toast({
-          title: "Payment Submitted Successfully!",
-          description: "Your payment has been saved and submitted for verification. We'll activate your plan within 24 hours.",
+      // Check if this is a course enrollment (has planCode)
+      if (selectedPlan?.planCode && selectedPlan.planCode !== 'UNKNOWN') {
+        // Use course enrollment payment for courses
+        const result = await createCourseEnrollmentPayment({
+          courseId: selectedPlan.name, // Using name as course identifier
+          courseTitle: selectedPlan.name,
+          planName: selectedPlan.planCode,
+          amount: parseInt(selectedPlan.price),
+          userEmail: currentUser?.email || 'guest@example.com',
+          userName: currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Guest User',
+          userId: currentUser?.uid || '', // Firebase localId
+          transactionId: transactionId.trim(),
+          utrNumber: transactionId.trim(), // UTR number is the same as transaction ID for UPI
+          paymentScreenshot: paymentScreenshot.trim(),
         });
+
+        if (result.success) {
+          setPaymentStep('confirmation');
+          toast({
+            title: "Course Enrollment Submitted Successfully!",
+            description: "Your course enrollment has been submitted for verification. You will receive access once verified.",
+          });
+        } else {
+          throw new Error('Failed to create course enrollment');
+        }
       } else {
-        throw new Error('Failed to save payment details');
+        // Use regular payment for subscription plans
+        const result = await savePaymentDetails({
+          transactionId: transactionId.trim(),
+          planName: selectedPlan?.name || 'Unknown Plan',
+          amount: typeof selectedPlan?.price === 'number' ? selectedPlan.price : parseInt(String(selectedPlan?.price || '0')),
+          userEmail: currentUser?.email || 'guest@example.com',
+          userName: currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Guest User',
+          userId: currentUser?.uid || '', // Firebase localId
+          paymentScreenshot: paymentScreenshot.trim() || '',
+        });
+
+        if (result.success) {
+          setPaymentStep('confirmation');
+          toast({
+            title: "Payment Submitted Successfully!",
+            description: "Your payment has been saved and submitted for verification. We'll activate your plan within 24 hours.",
+          });
+        } else {
+          throw new Error('Failed to save payment details');
+        }
       }
     } catch (error) {
       toast({
@@ -190,9 +219,8 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
                   src="/phonepe-qr-code.png" 
                   alt="PhonePe QR Code for Payment"
                   className="w-full h-full object-cover"
-                  onLoad={() => console.log('QR code image loaded successfully')}
+                  onLoad={() => {}}
                   onError={(e) => {
-                    console.error('QR code image failed to load:', e);
                     // Hide the image and show fallback if it fails to load
                     e.currentTarget.style.display = 'none';
                     const fallback = e.currentTarget.nextElementSibling as HTMLElement;
@@ -236,10 +264,10 @@ const UPIPayment = ({ selectedPlan, isOpen, onClose }: UPIPaymentProps) => {
             {/* Transaction ID Input */}
             <div className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="transactionId" className="text-sm">Transaction ID *</Label>
+                <Label htmlFor="transactionId" className="text-sm">UPI Transaction ID / UTR Number *</Label>
                 <Input
                   id="transactionId"
-                  placeholder="Enter UPI transaction ID"
+                  placeholder="Enter UPI transaction ID or UTR number"
                   value={transactionId}
                   onChange={(e) => setTransactionId(e.target.value)}
                   className="text-sm"

@@ -177,29 +177,29 @@ const Contact = () => {
                         <label htmlFor="firstName" className="text-sm font-medium text-gray-700 mb-2 block">
                           First Name
                         </label>
-                                                 <Input
-                           id="firstName"
-                           name="firstName"
-                           value={formData.firstName}
-                           onChange={handleChange}
-                           placeholder="John"
-                           className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring"
-                           required
-                         />
+                        <Input
+                          id="firstName"
+                          name="firstName"
+                          value={formData.firstName}
+                          onChange={handleChange}
+                          placeholder="John"
+                          className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring"
+                          required
+                        />
                       </div>
                       <div>
                         <label htmlFor="lastName" className="text-sm font-medium text-gray-700 mb-2 block">
                           Last Name
                         </label>
-                                                 <Input
-                           id="lastName"
-                           name="lastName"
-                           value={formData.lastName}
-                           onChange={handleChange}
-                           placeholder="Doe"
-                           className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring"
-                           required
-                         />
+                        <Input
+                          id="lastName"
+                          name="lastName"
+                          value={formData.lastName}
+                          onChange={handleChange}
+                          placeholder="Doe"
+                          className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring"
+                          required
+                        />
                       </div>
                     </div>
                     
@@ -207,31 +207,31 @@ const Contact = () => {
                       <label htmlFor="email" className="text-sm font-medium text-gray-700 mb-2 block">
                         Email
                       </label>
-                                             <Input
-                         id="email"
-                         name="email"
-                         type="email"
-                         value={formData.email}
-                         onChange={handleChange}
-                         placeholder="john@example.com"
-                         className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring"
-                         required
-                       />
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="john@example.com"
+                        className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring"
+                        required
+                      />
                     </div>
                     
                     <div>
                       <label htmlFor="phone" className="text-sm font-medium text-gray-700 mb-2 block">
                         Phone
                       </label>
-                                             <Input
-                         id="phone"
-                         name="phone"
-                         value={formData.phone}
-                         onChange={handleChange}
-                         placeholder="+1 (555) 123-4567"
-                         className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring"
-                         required
-                       />
+                      <Input
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="+1 (555) 123-4567"
+                        className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring"
+                        required
+                      />
                     </div>
                     
                     <div>
@@ -239,7 +239,7 @@ const Contact = () => {
                         Course Interest
                       </label>
                       <Select value={formData.courseInterest} onValueChange={handleSelectChange}>
-                                                 <SelectTrigger className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring">
+                        <SelectTrigger className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring">
                           <SelectValue placeholder="Select a course" />
                         </SelectTrigger>
                         <SelectContent>
@@ -260,7 +260,7 @@ const Contact = () => {
                         onChange={handleChange}
                         placeholder="Tell us about your career goals and how we can help..."
                         rows={5}
-                                                 className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring resize-none"
+                        className="border-gray-300 focus:border-theme-border-focus focus:ring-theme-ring resize-none"
                         required
                       />
                     </div>
@@ -303,4 +303,3 @@ const Contact = () => {
 };
 
 export default Contact;
-
