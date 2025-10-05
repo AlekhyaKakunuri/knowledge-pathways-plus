@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, User, LogOut } from "lucide-react";
+import { BookOpen, Menu, User, LogOut, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -35,6 +37,14 @@ const Header = () => {
       navigate('/');
     } catch (error) {
     }
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -96,11 +106,59 @@ const Header = () => {
               </Button>
             </Link>
           )}
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-4 w-4" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden"
+            onClick={toggleMobileMenu}
+          >
+            {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </Button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <nav className="container py-4 space-y-3">
+            <Link 
+              to="/" 
+              className={`block py-2 px-3 rounded-md text-sm font-medium transition-colors ${isActive("/") ? "text-theme-primary bg-theme-primary/10" : "text-muted-foreground hover:text-theme-primary hover:bg-theme-primary/10"}`}
+              onClick={closeMobileMenu}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/courses" 
+              className={`block py-2 px-3 rounded-md text-sm font-medium transition-colors ${isActive("/courses") ? "text-theme-primary bg-theme-primary/10" : "text-muted-foreground hover:text-theme-primary hover:bg-theme-primary/10"}`}
+              onClick={closeMobileMenu}
+            >
+              Courses
+            </Link>
+            <Link 
+              to="/blogs" 
+              className={`block py-2 px-3 rounded-md text-sm font-medium transition-colors ${isActive("/blogs") ? "text-theme-primary bg-theme-primary/10" : "text-muted-foreground hover:text-theme-primary hover:bg-theme-primary/10"}`}
+              onClick={closeMobileMenu}
+            >
+              Blog
+            </Link>
+            <Link 
+              to="/pricing" 
+              className={`block py-2 px-3 rounded-md text-sm font-medium transition-colors ${isActive("/pricing") ? "text-theme-primary bg-theme-primary/10" : "text-muted-foreground hover:text-theme-primary hover:bg-theme-primary/10"}`}
+              onClick={closeMobileMenu}
+            >
+              Pricing
+            </Link>
+            <Link 
+              to="/contact" 
+              className={`block py-2 px-3 rounded-md text-sm font-medium transition-colors ${isActive("/contact") ? "text-theme-primary bg-theme-primary/10" : "text-muted-foreground hover:text-theme-primary hover:bg-theme-primary/10"}`}
+              onClick={closeMobileMenu}
+            >
+              Contact
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };

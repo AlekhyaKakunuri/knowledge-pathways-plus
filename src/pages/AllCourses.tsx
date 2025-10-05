@@ -145,16 +145,33 @@ const AllCourses = () => {
                 <span className="ml-3 text-lg">Loading courses...</span>
               </div>
             ) : courses.length > 0 ? (
-              <div className="flex flex-wrap justify-center gap-8 mb-16">
-                {courses.map((course) => (
-                  <div key={course.id} className="w-full max-w-sm">
-                    <CourseCard
-                      course={course}
-                      showLearnMore={true}
-                    />
+              <>
+                {/* Mobile: Horizontal scroll */}
+                <div className="sm:hidden">
+                  <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+                    {courses.map((course) => (
+                      <div key={course.id} className="w-[200px] flex-shrink-0">
+                        <CourseCard
+                          course={course}
+                          showLearnMore={true}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+                
+                {/* Desktop: Grid layout */}
+                <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
+                  {courses.map((course) => (
+                    <div key={course.id} className="w-full">
+                      <CourseCard
+                        course={course}
+                        showLearnMore={true}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="text-center py-12">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">No Courses Found</h3>

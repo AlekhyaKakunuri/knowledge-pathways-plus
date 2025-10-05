@@ -30,13 +30,13 @@ const CoursesSection = () => {
 
 
   return (
-    <section className="py-8 md:py-12 lg:py-16 bg-white px-4">
+    <section className="py-6 md:py-8 lg:py-10 bg-gray-50 px-4">
       <div className="container">
-        <div className="text-center mb-6 md:mb-8 lg:mb-12">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
+        <div className="mb-4 md:mb-6 lg:mb-8">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 md:mb-4 text-left">
             Explore Our Courses
           </h2>
-          <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-xl md:max-w-2xl mx-auto">
+          <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-xl md:max-w-2xl text-left">
             Choose from our carefully curated courses designed to accelerate your career
           </p>
         </div>
@@ -47,16 +47,33 @@ const CoursesSection = () => {
             <span className="ml-3 text-lg">Loading courses...</span>
           </div>
         ) : displayCourses.length > 0 ? (
-          <div className="flex flex-wrap justify-center gap-6 mb-6 md:mb-8">
-            {displayCourses.map((course) => (
-              <div key={course.id} className="w-full max-w-sm">
-                <CourseCard
-                  course={course}
-                  showLearnMore={false}
-                />
+          <>
+            {/* Mobile: Horizontal scroll */}
+            <div className="sm:hidden">
+              <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+                {displayCourses.map((course) => (
+                  <div key={course.id} className="w-[200px] flex-shrink-0">
+                    <CourseCard
+                      course={course}
+                      showLearnMore={true}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+            
+            {/* Desktop: Grid layout */}
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 md:mb-8">
+              {displayCourses.map((course) => (
+                <div key={course.id} className="w-full">
+                  <CourseCard
+                    course={course}
+                    showLearnMore={true}
+                  />
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="text-center py-12">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">No Courses Available</h3>

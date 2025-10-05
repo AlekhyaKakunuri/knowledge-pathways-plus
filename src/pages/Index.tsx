@@ -35,13 +35,11 @@ const Index = () => {
       <main>
         <HeroSection />
         <FeaturesSection />
-        <PopularBlogsSection />
         <CoursesSection />
+        <PopularBlogsSection />
         <TrustSection />
         <HowItWorksSection />
-        <JourneySection />
         <ExpertsSection />
-        <CTASection />
       </main>
 
       <Footer />

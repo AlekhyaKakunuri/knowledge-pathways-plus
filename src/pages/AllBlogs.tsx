@@ -154,38 +154,76 @@ const AllBlogs = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredBlogs.map((blog) => (
-              <div key={blog.id} className="relative">
-                <BlogCard
-                  blog={{
-                    id: blog.id,
-                    title: blog.title,
-                    excerpt: blog.excerpt,
-                    content: blog.content_html,
-                    is_premium: blog.access_type === 'premium',
-                    is_popular: blog.labels?.includes('Most Popular') || blog.labels?.includes('popular') || false,
-                    tags: blog.tags || [],
-                    labels: blog.labels || [],
-                    access_type: blog.access_type,
-                    thumbnail_url: blog.thumbnail_url,
-                    featured_image_url: blog.thumbnail_url || blog.cover_url || 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop'
-                  }}
-                />
-                
-                {/* Premium Lock Overlay */}
-                {blog.access_type === 'premium' && !currentUser && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <Lock className="h-8 w-8 mx-auto mb-2" />
-                      <p className="text-sm font-medium">Premium Content</p>
-                      <p className="text-xs opacity-90">Sign in to read</p>
-                    </div>
+          <>
+            {/* Mobile: Horizontal scroll */}
+            <div className="sm:hidden">
+              <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+                {filteredBlogs.map((blog) => (
+                  <div key={blog.id} className="relative w-[200px] flex-shrink-0">
+                    <BlogCard
+                      blog={{
+                        id: blog.id,
+                        title: blog.title,
+                        excerpt: blog.excerpt,
+                        content: blog.content_html,
+                        is_premium: blog.access_type === 'premium',
+                        is_popular: blog.labels?.includes('Most Popular') || blog.labels?.includes('popular') || false,
+                        tags: blog.tags || [],
+                        labels: blog.labels || [],
+                        access_type: blog.access_type,
+                        thumbnail_url: blog.thumbnail_url,
+                        featured_image_url: blog.thumbnail_url || blog.cover_url || 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop'
+                      }}
+                    />
+                    
+                    {/* Premium Lock Overlay */}
+                    {blog.access_type === 'premium' && !currentUser && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <Lock className="h-6 w-6 mx-auto mb-1" />
+                          <p className="text-xs font-medium">Premium</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+            
+            {/* Desktop: Grid layout */}
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {filteredBlogs.map((blog) => (
+                <div key={blog.id} className="relative">
+                  <BlogCard
+                    blog={{
+                      id: blog.id,
+                      title: blog.title,
+                      excerpt: blog.excerpt,
+                      content: blog.content_html,
+                      is_premium: blog.access_type === 'premium',
+                      is_popular: blog.labels?.includes('Most Popular') || blog.labels?.includes('popular') || false,
+                      tags: blog.tags || [],
+                      labels: blog.labels || [],
+                      access_type: blog.access_type,
+                      thumbnail_url: blog.thumbnail_url,
+                      featured_image_url: blog.thumbnail_url || blog.cover_url || 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop'
+                    }}
+                  />
+                  
+                  {/* Premium Lock Overlay */}
+                  {blog.access_type === 'premium' && !currentUser && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <Lock className="h-8 w-8 mx-auto mb-2" />
+                        <p className="text-sm font-medium">Premium Content</p>
+                        <p className="text-xs opacity-90">Sign in to read</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

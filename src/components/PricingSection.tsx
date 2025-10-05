@@ -165,11 +165,11 @@ const PricingSection = () => {
     <section className="py-12 md:py-16 lg:py-20 bg-white">
       <div className="container">
         {/* Header Section */}
-        <div className="text-center mb-8 md:mb-12 lg:mb-16">
+        <div className="mb-8 md:mb-12 lg:mb-16">
           <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 md:mb-4 text-gray-900">
             Choose Your Plan
           </h2>
-          <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-xl md:max-w-2xl mx-auto">
+          <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-xl md:max-w-2xl">
             Start free, upgrade anytime for unlimited access.
           </p>
         </div>

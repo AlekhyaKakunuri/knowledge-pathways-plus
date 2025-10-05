@@ -2,7 +2,8 @@ import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
-import PopularBlogsSection from '@/components/PopularBlogsSection';
+import FeaturesSection from '@/components/FeaturesSection';
+import CoursesSection from '@/components/CoursesSection';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import JourneySection from '@/components/JourneySection';
 import CalendlyBooking from '@/components/CalendlyBooking';
@@ -13,7 +14,8 @@ const Home = () => {
       <Header />
       <main>
         <HeroSection />
-        <PopularBlogsSection />
+        <FeaturesSection />
+        <CoursesSection />
         <HowItWorksSection />
         <JourneySection />
         <CalendlyBooking />

@@ -44,15 +44,7 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
   
   // Limit tags to 3
   const displayTags = course.tags.slice(0, 3);
-  
-  // Format duration
-  const formatDuration = (duration: number) => {
-    if (duration < 1) {
-      return `${Math.round(duration * 60)} min`;
-    }
-    return `${duration} hours`;
-  };
-  
+
   // Format price
   const formatPrice = () => {
     if (course.isFree) {
@@ -78,7 +70,8 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
   const hasActiveSubscription = hasAccessToCourse();
 
 
-  const handleEnrollClick = () => {
+  const handleEnrollClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
     const currentPrice = course.sale_price || course.price;
 
     if (currentPrice === 0) {
@@ -105,12 +98,19 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
     setIsUPIOpen(true);
   };
 
+  const handleCardClick = () => {
+    navigate(`/course/${course.id}`);
+  };
+
   return (
     <>
-      <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden flex flex-col h-full">
+      <Card 
+        className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden flex flex-col h-full cursor-pointer"
+        onClick={handleCardClick}
+      >
         <CardContent className="p-0 flex flex-col flex-1">
           {/* Course Header with Banner Image */}
-          <div className="relative h-[200px] overflow-hidden">
+          <div className="relative h-[100px] sm:h-[200px] overflow-hidden">
             {course.banner_url ? (
               <img 
                 src={course.banner_url}
@@ -119,27 +119,27 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
               />
             ) : (
               <div className={`w-full h-full ${course.color || 'bg-blue-500'} flex flex-col justify-center items-center text-center`}>
-                <div className="w-16 h-16 bg-white/20 rounded-lg flex items-center justify-center mb-4">
-                  <CategoryIcon className="w-8 h-8 text-white" />
+                <div className="w-6 h-6 sm:w-16 sm:h-16 bg-white/20 rounded-lg flex items-center justify-center mb-1 sm:mb-4">
+                  <CategoryIcon className="w-3 h-3 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h3 className="text-white font-bold text-lg px-4">{course.title}</h3>
+                <h3 className="text-white font-bold text-xs sm:text-lg px-1 sm:px-4">{course.title}</h3>
               </div>
             )}
             
             {/* Overlay badges */}
-            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+            <div className="absolute top-1 left-1 sm:top-4 sm:left-4 flex flex-wrap gap-1 sm:gap-2">
               {course.isMostPopular && (
-                <Badge className="bg-red-500 text-white text-xs">
+                <Badge className="bg-red-500 text-white text-[8px] sm:text-xs px-1 py-0.5 sm:px-2 sm:py-1">
                   Most Popular
                 </Badge>
               )}
               {course.is_premium && (
-                <Badge className="bg-yellow-500 text-white text-xs">
+                <Badge className="bg-yellow-500 text-white text-[8px] sm:text-xs px-1 py-0.5 sm:px-2 sm:py-1">
                   Premium
                 </Badge>
               )}
               {course.isFree && (
-                <Badge className="bg-green-500 text-white text-xs">
+                <Badge className="bg-green-500 text-white text-[8px] sm:text-xs px-1 py-0.5 sm:px-2 sm:py-1">
                   Free
                 </Badge>
               )}
@@ -147,83 +147,30 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
           </div>
 
           {/* Course Details */}
-          <div className="p-6 bg-white flex-1 flex flex-col">
-            <div className="mb-4">
-              {/* Tags - Limited to 3 */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {displayTags.map((tag, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  >
-                    {tag}
-                  </Badge>
-                ))}
+          <div className="p-2 sm:p-6 bg-white flex-1 flex flex-col">
+            {/* 1. Title */}
+            <h3 className="text-xs sm:text-xl font-bold leading-tight mb-2 sm:mb-4 text-gray-900 line-clamp-2">{course.title}</h3>
+            
+            {/* 2. [duration, level value, rating] - same line */}
+            <div className="flex items-center gap-1 sm:gap-4 mb-2 sm:mb-4 text-[10px] sm:text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span>{course.duration}</span>
               </div>
-              
-              {/* Title */}
-              <h3 className="text-xl font-bold leading-tight mb-3 text-gray-900">{course.title}</h3>
-              
-              {/* Description */}
-              <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2">
-                {course.short_description || 'Learn with expert guidance'}
-              </p>
-              
-              {/* Course Stats */}
-              <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  <span>{formatDuration(course.duration)}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <UsersIcon className="w-4 h-4" />
-                  <span>{course.enrollment_count.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-500" />
-                  <span>{course.average_rating.toFixed(1)}</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <span className="font-medium">Level:</span> {course.level}
               </div>
-              
-              {/* Duration and Price */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">Level:</span> {course.level}
-                </div>
-                <div className="text-right">
-                  {course.isFree ? (
-                    <span className="text-xl font-bold text-green-600">Free</span>
-                  ) : (
-                    <div className="flex flex-col items-end">
-                      {course.sale_price && course.price > course.sale_price && (
-                        <>
-                          <span className="text-sm text-gray-500 line-through">
-                            ₹{course.price.toLocaleString()}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl font-bold text-theme-primary">
-                              {formatPrice()}
-                            </span>
-                            <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
-                              {Math.round(((course.price - course.sale_price) / course.price) * 100)}% OFF
-                            </span>
-                          </div>
-                        </>
-                      )}
-                      {(!course.sale_price || course.price <= course.sale_price) && (
-                        <span className="text-xl font-bold text-theme-primary">
-                          {formatPrice()}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
+              <div className="flex items-center gap-1">
+                <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500" />
+                <span>{course.average_rating.toFixed(1)}</span>
               </div>
-              
+            </div>
+            
+            {/* 3. [Instructor details(icon, name), sale price, mrp price] - same line */}
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
               {/* Instructor */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+              <div className="flex items-center gap-1 sm:gap-3">
+                <div className="w-4 h-4 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-gray-200">
                   {course.instructor.img_url ? (
                     <img 
                       src={course.instructor.img_url}
@@ -239,16 +186,41 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{course.instructor.name}</p>
-                  <p className="text-xs text-gray-500">{course.category}</p>
+                  <p className="text-[10px] sm:text-sm font-medium text-gray-900 line-clamp-1">{course.instructor.name}</p>
+                  <p className="text-[8px] sm:text-xs text-gray-500">{course.category}</p>
                 </div>
+              </div>
+              
+              {/* Pricing */}
+              <div className="text-right">
+                {course.isFree ? (
+                  <span className="text-[10px] sm:text-xl font-bold text-green-600">Free</span>
+                ) : (
+                  <div className="flex flex-col items-end">
+                    {course.sale_price && course.price > course.sale_price && (
+                      <>
+                        <span className="text-[8px] sm:text-sm text-gray-500 line-through">
+                          ₹{course.price.toLocaleString()}
+                        </span>
+                        <span className="text-[10px] sm:text-xl font-bold text-theme-primary">
+                          {formatPrice()}
+                        </span>
+                      </>
+                    )}
+                    {(!course.sale_price || course.price <= course.sale_price) && (
+                      <span className="text-[10px] sm:text-xl font-bold text-theme-primary">
+                        {formatPrice()}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 mt-auto">
+            {/* 4. [Enroll, view details buttons] - same line */}
+            <div className="flex gap-1 sm:gap-3 mt-auto">
               <Button 
-                className="flex-1 bg-theme-primary hover:bg-theme-primary-hover text-white font-semibold py-2.5"
+                className="flex-1 bg-theme-primary hover:bg-theme-primary-hover text-white font-semibold py-1 sm:py-2.5 text-[9px] sm:text-sm"
                 onClick={handleEnrollClick}
               >
                 {course.isFree 
@@ -263,8 +235,11 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
               {showLearnMore && (
                 <Button 
                   variant="outline" 
-                  className="flex-1 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white font-semibold py-2.5"
-                  onClick={() => navigate(`/course/${course.id}`)}
+                  className="flex-1 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white font-semibold py-1 sm:py-2.5 text-[9px] sm:text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/course/${course.id}`);
+                  }}
                 >
                   View Details
                 </Button>

@@ -65,13 +65,6 @@ const CourseDetail = () => {
 
   const hasActiveSubscription = hasAccessToCourse();
 
-  const formatDuration = (duration: number) => {
-    if (duration < 1) {
-      return `${Math.round(duration * 60)} min`;
-    }
-    return `${duration} hours`;
-  };
-
   const formatPrice = () => {
     if (!course) return 'Free';
     if (course.isFree) {
@@ -135,7 +128,7 @@ const CourseDetail = () => {
     yPosition += 5;
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    const courseMeta = `${course.category} • ${course.level} • ${formatDuration(course.duration)} • ${curriculum.reduce((total, module) => total + (module.lessons?.length || 0), 0)} lessons`;
+    const courseMeta = `${course.category} • ${course.level} • ${course.duration} • ${curriculum.reduce((total, module) => total + (module.lessons?.length || 0), 0)} lessons`;
     yPosition = addText(courseMeta, margin, yPosition, { lineHeight: 6 });
 
     // Add line separator
@@ -327,7 +320,7 @@ const CourseDetail = () => {
                 </Badge>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  <span className="text-sm">{formatDuration(course.duration)}</span>
+                  <span className="text-sm">{course.duration}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
@@ -707,7 +700,7 @@ const CourseDetail = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Duration</span>
-                  <span className="font-medium">{formatDuration(course.duration)}</span>
+                  <span className="font-medium">{course.duration}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Level</span>

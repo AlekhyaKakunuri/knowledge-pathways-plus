@@ -18,16 +18,16 @@ const PopularBlogsSection = () => {
 
   if (loading) {
     return (
-      <section className="py-8 md:py-12 lg:py-16 bg-gray-50 px-4">
+      <section className="py-6 md:py-8 lg:py-10 bg-white px-4">
         <div className="container">
-          <div className="flex items-center justify-between mb-6 md:mb-8 lg:mb-12">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
-              Popular Blogs
-            </h2>
-            <Button asChild size="sm" className="bg-theme-primary hover:bg-theme-primary-hover text-white transition-all duration-300 px-3 md:px-4 py-2 text-sm">
-              <Link to="/blogs">View All Blogs</Link>
-            </Button>
-          </div>
+        <div className="text-center mb-4 md:mb-6 lg:mb-8">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+            Popular Blogs
+          </h2>
+          <Button asChild size="sm" className="bg-theme-primary hover:bg-theme-primary-hover text-white transition-all duration-300 px-3 md:px-4 py-2 text-sm">
+            <Link to="/blogs">View All Blogs</Link>
+          </Button>
+        </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[1, 2, 3].map((i) => (
               <Card key={i} className="overflow-hidden bg-white border-0 shadow-md">
@@ -51,10 +51,10 @@ const PopularBlogsSection = () => {
   const hasMoreBlogs = allBlogs.length > 3;
 
   return (
-    <section className="py-8 md:py-12 lg:py-16 bg-gray-50 px-4">
+    <section className="py-6 md:py-8 lg:py-10 bg-gray-50 px-4">
       <div className="container">
-        <div className="flex items-center justify-between mb-6 md:mb-8 lg:mb-12">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
+        <div className="text-center mb-4 md:mb-6 lg:mb-8">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
             Popular Blogs
           </h2>
           {hasMoreBlogs && (
@@ -82,37 +82,75 @@ const PopularBlogsSection = () => {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {displayBlogs.map((blog) => (
-              <div key={blog.id} className="relative">
-                <BlogCard
-                  blog={{
-                    id: blog.id,
-                    title: blog.title,
-                    excerpt: blog.excerpt,
-                    content: blog.content_html,
-                    is_premium: blog.access_type === 'premium',
-                    is_popular: blog.labels?.includes('Most Popular') || blog.labels?.includes('popular') || false,
-                    tags: blog.tags || [],
-                    labels: blog.labels || [],
-                    access_type: blog.access_type,
-                    thumbnail_url: blog.thumbnail_url,
-                    featured_image_url: blog.thumbnail_url || blog.cover_url || 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop'
-                  }}
-                />
-                
-                {/* Premium Lock Overlay */}
-                {blog.access_type === 'premium' && !currentUser && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <Lock className="h-6 w-6 mx-auto mb-1" />
-                      <p className="text-xs font-medium">Premium</p>
-                    </div>
+          <>
+            {/* Mobile: Horizontal scroll */}
+            <div className="sm:hidden">
+              <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+                {displayBlogs.map((blog) => (
+                  <div key={blog.id} className="relative w-[200px] flex-shrink-0">
+                    <BlogCard
+                      blog={{
+                        id: blog.id,
+                        title: blog.title,
+                        excerpt: blog.excerpt,
+                        content: blog.content_html,
+                        is_premium: blog.access_type === 'premium',
+                        is_popular: blog.labels?.includes('Most Popular') || blog.labels?.includes('popular') || false,
+                        tags: blog.tags || [],
+                        labels: blog.labels || [],
+                        access_type: blog.access_type,
+                        thumbnail_url: blog.thumbnail_url,
+                        featured_image_url: blog.thumbnail_url || blog.cover_url || 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop'
+                      }}
+                    />
+                    
+                    {/* Premium Lock Overlay */}
+                    {blog.access_type === 'premium' && !currentUser && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <Lock className="h-6 w-6 mx-auto mb-1" />
+                          <p className="text-xs font-medium">Premium</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+            
+            {/* Desktop: Grid layout */}
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {displayBlogs.map((blog) => (
+                <div key={blog.id} className="relative">
+                  <BlogCard
+                    blog={{
+                      id: blog.id,
+                      title: blog.title,
+                      excerpt: blog.excerpt,
+                      content: blog.content_html,
+                      is_premium: blog.access_type === 'premium',
+                      is_popular: blog.labels?.includes('Most Popular') || blog.labels?.includes('popular') || false,
+                      tags: blog.tags || [],
+                      labels: blog.labels || [],
+                      access_type: blog.access_type,
+                      thumbnail_url: blog.thumbnail_url,
+                      featured_image_url: blog.thumbnail_url || blog.cover_url || 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop'
+                    }}
+                  />
+                  
+                  {/* Premium Lock Overlay */}
+                  {blog.access_type === 'premium' && !currentUser && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <Lock className="h-6 w-6 mx-auto mb-1" />
+                        <p className="text-xs font-medium">Premium</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </section>
