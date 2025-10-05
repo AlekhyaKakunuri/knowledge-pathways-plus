@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import CourseCard from "@/components/CourseCard";
+import CourseGrid from "@/components/CourseGrid";
 import {
   Code2,
   Brain,
@@ -139,48 +139,12 @@ const AllCourses = () => {
             </div>
 
             {/* Courses Grid */}
-            {loading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                <span className="ml-3 text-lg">Loading courses...</span>
-              </div>
-            ) : courses.length > 0 ? (
-              <>
-                {/* Mobile: Horizontal scroll */}
-                <div className="sm:hidden">
-                  <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
-                    {courses.map((course) => (
-                      <div key={course.id} className="w-[200px] flex-shrink-0">
-                        <CourseCard
-                          course={course}
-                          showLearnMore={true}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Desktop: Grid layout */}
-                <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-                  {courses.map((course) => (
-                    <div key={course.id} className="w-full">
-                      <CourseCard
-                        course={course}
-                        showLearnMore={true}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-12">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">No Courses Found</h3>
-                <p className="text-gray-600 mb-6">We're working on adding new courses. Check back soon!</p>
-                <Button onClick={() => window.location.reload()}>
-                  Refresh Page
-                </Button>
-              </div>
-            )}
+            <CourseGrid 
+              courses={courses} 
+              showLearnMore={true} 
+              loading={loading}
+              className="mb-16"
+            />
           </div>
         </section>
 

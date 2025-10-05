@@ -29,7 +29,7 @@ const ExpertsSection = () => {
     <section className="py-6 md:py-8 lg:py-10 bg-white px-4">
       <div className="container">
         <div className="mb-4 md:mb-6 lg:mb-8">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
+          <h2 className="text-base md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
             Learn from Industry Experts
           </h2>
         </div>

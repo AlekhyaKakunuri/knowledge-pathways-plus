@@ -53,21 +53,13 @@ export const decodeJWT = (token: string): DecodedToken | null => {
 export const getSubscriptionFromToken = (token: string): SubscriptionPayload | null => {
   const decoded = decodeJWT(token);
   
-  console.log('JWT Decoded Payload:', decoded);
   
   if (!decoded) {
-    console.log('Failed to decode JWT token');
     return null;
   }
 
   // Check if subscription data is directly in the payload (not nested)
   if (decoded.plan_name && decoded.start_date && decoded.end_date && decoded.is_premium !== undefined) {
-    console.log('Found subscription data directly in payload:', {
-      plan_name: decoded.plan_name,
-      start_date: decoded.start_date,
-      end_date: decoded.end_date,
-      is_premium: decoded.is_premium
-    });
     
     return {
       plan_name: decoded.plan_name,
@@ -78,7 +70,6 @@ export const getSubscriptionFromToken = (token: string): SubscriptionPayload | n
   }
 
   // Fallback to nested subscription object
-  console.log('No direct subscription data found, checking nested subscription:', decoded.subscription);
   return decoded.subscription || null;
 };
 

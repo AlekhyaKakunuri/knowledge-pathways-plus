@@ -73,7 +73,6 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
    */
   const refreshSubscription = async (): Promise<void> => {
     if (!currentUser) {
-      console.log('No current user, setting subscription to null');
       setSubscription(null);
       return;
     }
@@ -85,19 +84,12 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       // Get the JWT token from Firebase Auth
       const token = await currentUser.getIdToken();
       
-      console.log('Got JWT token:', {
-        tokenLength: token?.length,
-        userEmail: currentUser.email
-      });
-      
       if (!token) {
-        console.log('No token received, setting subscription to null');
         setSubscription(null);
         return;
       }
 
       const subscriptionInfo = await processSubscriptionFromToken(token);
-      console.log('Processed subscription info:', subscriptionInfo);
       setSubscription(subscriptionInfo);
     } catch (err) {
       console.error('Error refreshing subscription:', err);

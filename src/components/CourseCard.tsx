@@ -152,7 +152,7 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
             <h3 className="text-xs sm:text-xl font-bold leading-tight mb-2 sm:mb-4 text-gray-900 line-clamp-2">{course.title}</h3>
             
             {/* 2. [duration, level value, rating] - same line */}
-            <div className="flex items-center gap-1 sm:gap-4 mb-2 sm:mb-4 text-[10px] sm:text-sm text-gray-500">
+            <div className="flex items-center justify-between mb-2 sm:mb-4 text-[10px] sm:text-sm text-gray-500">
               <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>{course.duration}</span>
@@ -167,10 +167,10 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
             </div>
             
             {/* 3. [Instructor details(icon, name), sale price, mrp price] - same line */}
-            <div className="flex items-center justify-between mb-2 sm:mb-4">
+            <div className="flex items-start justify-between mb-2 sm:mb-4">
               {/* Instructor */}
-              <div className="flex items-center gap-1 sm:gap-3">
-                <div className="w-4 h-4 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-gray-200">
+              <div className="flex items-center gap-1 sm:gap-3 flex-1 min-w-0 pr-2">
+                <div className="w-4 h-4 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                   {course.instructor.img_url ? (
                     <img 
                       src={course.instructor.img_url}
@@ -185,14 +185,14 @@ const CourseCard = ({ course, showLearnMore = true, onLearnMore }: CourseCardPro
                     />
                   )}
                 </div>
-                <div>
-                  <p className="text-[10px] sm:text-sm font-medium text-gray-900 line-clamp-1">{course.instructor.name}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] sm:text-sm font-medium text-gray-900 break-words">{course.instructor.name}</p>
                   <p className="text-[8px] sm:text-xs text-gray-500">{course.category}</p>
                 </div>
               </div>
               
               {/* Pricing */}
-              <div className="text-right">
+              <div className="text-right flex-shrink-0">
                 {course.isFree ? (
                   <span className="text-[10px] sm:text-xl font-bold text-green-600">Free</span>
                 ) : (

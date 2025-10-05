@@ -27,13 +27,6 @@ const BlogDetail = () => {
   const hasAccessToPremiumBlog = currentUser && canAccessPremiumContent && blog?.access_type === 'premium';
   
   // Debug logging
-  console.log('BlogDetail Debug:', {
-    currentUser: !!currentUser,
-    canAccessPremiumContent,
-    blogAccessType: blog?.access_type,
-    hasAccessToPremiumBlog,
-    blogTitle: blog?.title
-  });
 
   const handleSubscribe = () => {
     // Redirect to pricing page for subscription

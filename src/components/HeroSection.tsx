@@ -4,11 +4,11 @@ import "@/styles/blog-content.css";
 
 const HeroSection = () => {
   return (
-    <section className="relative overflow-hidden bg-white py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 px-4">
+    <section className="relative overflow-hidden bg-white py-4 sm:py-6 md:py-8 lg:py-10 xl:py-12 px-4">
       <div className="container relative z-10 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 items-center">
           {/* Left Content */}
-          <div className="space-y-3 sm:space-y-4 md:space-y-6 text-center lg:text-left">
+          <div className="space-y-2 sm:space-y-3 md:space-y-4 text-center lg:text-left">
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-4xl font-bold leading-tight">
               <div className="hero-line-1">From Learning to <span className="text-theme-primary">Placement</span></div>
               <div className="hero-line-2">We're With You</div>

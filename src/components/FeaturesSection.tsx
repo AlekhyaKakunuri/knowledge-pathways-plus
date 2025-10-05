@@ -20,14 +20,14 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className="py-6 md:py-8 lg:py-10 bg-white">
-      <div className="container px-8">
+    <section className="py-6 md:py-8 lg:py-10 bg-white px-4">
+      <div className="container">
         <div className="mb-4 md:mb-6 lg:mb-8">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
+          <h2 className="text-base md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 md:mb-4 text-left">
             Your Journey to Success in AI
           </h2>
         </div>
-        
+
         {/* Mobile: Horizontal scroll, Desktop: Grid */}
         <div className="sm:hidden">
           <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">

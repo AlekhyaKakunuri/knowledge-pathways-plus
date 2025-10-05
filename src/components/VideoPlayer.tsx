@@ -60,20 +60,17 @@ const VideoPlayer = ({ src, poster, className = '' }: VideoPlayerProps) => {
     const handleLoadStart = () => {
       setIsLoading(true);
       setError(null);
-      console.log('Video loading started:', src);
     };
 
     const handleLoadedData = () => {
       setIsLoading(false);
       setDuration(video.duration);
-      console.log('Video loaded successfully:', src);
     };
 
     const handleError = (e: any) => {
       setIsLoading(false);
       setError('Failed to load video');
       console.error('Video error:', e);
-      console.log('Video URL:', src);
     };
 
     const handleTimeUpdate = () => {

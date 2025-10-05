@@ -25,10 +25,10 @@ const TrustSection = () => {
   ];
 
   return (
-    <section className="py-6 md:py-8 lg:py-10 bg-gray-50">
+    <section className="py-4 md:py-6 lg:py-8 bg-gray-50">
       <div className="container px-4">
-        <div className="text-center mb-4 md:mb-6 lg:mb-8">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
+        <div className="text-center mb-3 md:mb-4 lg:mb-6">
+          <h2 className="text-base md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
             Why Students Trust Us
           </h2>
         </div>
